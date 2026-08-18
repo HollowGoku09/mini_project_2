@@ -1,0 +1,5 @@
+# Place the 4 raw CSV dataset files here:
+# - job_postings_fact.csv
+# - company_dim.csv
+# - skills_dim.csv
+# - skills_job_dim.csv

@@ -1,0 +1,20 @@
+# Environments and secrets
+.env
+.env.local
+*.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
+# Data directory contents (keep folder structure)
+data/raw/*
+!data/raw/.gitkeep
+data/rejects/*
+!data/rejects/.gitkeep
+
+# IDE / System
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db

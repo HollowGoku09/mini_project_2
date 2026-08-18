@@ -1,0 +1,84 @@
+// =============================================================================
+// DAX MEASURES FOR POWER BI DASHBOARD
+// Author: Senior Data Engineer & Analytics Engineer
+// Rule: Every salary measure is paired with a count measure for sample size transparency.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. KPI CORE MEASURES
+// -----------------------------------------------------------------------------
+
+Total Postings = 
+COUNT(job_postings_fact[job_id])
+
+Total Companies = 
+DISTINCTCOUNT(company_dim[company_id])
+
+Total Countries = 
+DISTINCTCOUNT(location_dim[country])
+
+Date Range Display = 
+FORMAT(MIN(job_postings_fact[job_posted_date]), "MMM YYYY") & " - " & FORMAT(MAX(job_postings_fact[job_posted_date]), "MMM YYYY")
+
+// -----------------------------------------------------------------------------
+// 2. SALARY & SAMPLE SIZE MEASURES (ALWAYS PAIRED)
+// -----------------------------------------------------------------------------
+
+Postings With Salary Disclosed = 
+CALCULATE(
+    COUNT(job_postings_fact[job_id]),
+    NOT(ISBLANK(job_postings_fact[salary_year_avg]))
+)
+
+Salary Disclosure Rate % = 
+DIVIDE([Postings With Salary Disclosed], [Total Postings], 0) * 100
+
+Average Yearly Salary = 
+AVERAGE(job_postings_fact[salary_year_avg])
+
+Median Yearly Salary = 
+MEDIAN(job_postings_fact[salary_year_avg])
+
+Salary Sample Size Label = 
+"Based on " & FORMAT([Postings With Salary Disclosed], "#,##0") & " disclosed postings (" & FORMAT([Salary Disclosure Rate %], "0.0") & "% of total)"
+
+// -----------------------------------------------------------------------------
+// 3. MARKET CONDITION MEASURES
+// -----------------------------------------------------------------------------
+
+Remote Postings Count = 
+CALCULATE(
+    COUNT(job_postings_fact[job_id]),
+    job_postings_fact[job_work_from_home] = TRUE
+)
+
+Remote Work Rate % = 
+DIVIDE([Remote Postings Count], [Total Postings], 0) * 100
+
+No Degree Mention Count = 
+CALCULATE(
+    COUNT(job_postings_fact[job_id]),
+    job_postings_fact[job_no_degree_mention] = TRUE
+)
+
+No Degree Mention Rate % = 
+DIVIDE([No Degree Mention Count], [Total Postings], 0) * 100
+
+Health Insurance Offered Count = 
+CALCULATE(
+    COUNT(job_postings_fact[job_id]),
+    job_postings_fact[job_health_insurance] = TRUE
+)
+
+Health Insurance Offer Rate % = 
+DIVIDE([Health Insurance Offered Count], [Total Postings], 0) * 100
+
+// -----------------------------------------------------------------------------
+// 4. SKILLS & COMPARISON MEASURES
+// -----------------------------------------------------------------------------
+
+Skill Demand Count = 
+COUNT(skills_job_dim[job_id])
+
+Skill Penetration % = 
+DIVIDE([Skill Demand Count], [Total Postings], 0) * 100

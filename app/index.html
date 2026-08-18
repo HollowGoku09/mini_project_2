@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Tech Job Market Analytics Platform (2023 - 2025)</title>
+    <meta name="description" content="Portfolio-grade tech job market analytics dashboard powered by PostgreSQL materialized views and 767,000+ job postings.">
+
+    <!-- Premium Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#070A12',
+                            surface: '#0E1424',
+                            surfaceElevated: '#141C33',
+                            border: '#1E294B',
+                            borderHighlight: '#334155',
+                            blue: '#3B82F6',
+                            emerald: '#10B981',
+                            cyan: '#06B6D4',
+                            amber: '#F59E0B',
+                            purple: '#8B5CF6',
+                            rose: '#F43F5E',
+                            indigo: '#6366F1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    boxShadow: {
+                        'glow-blue': '0 0 25px -5px rgba(59, 130, 246, 0.35)',
+                        'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.35)',
+                        'glow-purple': '0 0 25px -5px rgba(139, 92, 246, 0.35)',
+                        'glow-amber': '0 0 25px -5px rgba(245, 158, 11, 0.35)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            color-scheme: dark;
+        }
+
+        body {
+            background-color: #070A12;
+            color: #F3F4F6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Gradient Mesh Background */
+        .ambient-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.10) 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 85%, rgba(6, 182, 212, 0.06) 0%, transparent 45%);
+        }
+
+        /* Glassmorphism 2.0 Cards */
+        .glass-card {
+            background: rgba(14, 20, 36, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 1.1rem;
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.35);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Interactive Role Chips */
+        .role-chip {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .role-chip.active {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: #FFFFFF;
+            font-weight: 700;
+            border-color: #60A5FA;
+            box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.45);
+            transform: translateY(-1px);
+        }
+
+        /* Navigation Tab Buttons */
+        .tab-btn {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: #60A5FA;
+            font-weight: 700;
+            background: rgba(59, 130, 246, 0.10);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            width: 70%;
+            height: 3px;
+            background: linear-gradient(90deg, #3B82F6, #60A5FA);
+            border-radius: 999px;
+            box-shadow: 0 0 10px #3B82F6;
+        }
+
+        /* Badge Styles */
+        .badge-prog { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-cloud { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-tools { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-db { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-lib { background: rgba(236, 72, 153, 0.15); color: #F472B6; border: 1px solid rgba(236, 72, 153, 0.3); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070A12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E294B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B82F6;
+        }
+
+        /* Keyframes */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .animate-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        /* Slide Drawer */
+        .drawer { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-closed { transform: translateX(100%); }
+        .drawer-open { transform: translateX(0); }
+
+        /* Print Optimization */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; }
+            .no-print, header, section.sticky, nav, #jobDrawerOverlay, #jobDrawer, #currencyModalOverlay, #currencyModal, #commandPaletteModal { display: none !important; }
+            .glass-card { background: #ffffff !important; border: 1px solid #ccc !important; box-shadow: none !important; color: #000000 !important; }
+            .text-white, .text-gray-200, .text-gray-300, .text-gray-400 { color: #111111 !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-3 md:p-6 selection:bg-blue-600 selection:text-white relative">
+
+    <!-- Ambient Mesh Background -->
+    <div class="ambient-mesh"></div>
+
+    <!-- TOP NAVIGATION HEADER & BRAND BAR -->
+    <header class="mb-5 flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-slate-800/80 pb-4 gap-3 no-print">
+        <div class="flex items-center space-x-3.5">
+            <div class="relative group cursor-pointer" onclick="resetAllFilters()">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-70 group-hover:opacity-100 transition duration-300"></div>
+                <div class="relative bg-slate-900 border border-slate-700/80 p-3 rounded-2xl text-white font-black text-2xl shadow-xl flex items-center justify-center w-12 h-12">
+                    <i class="fa-solid fa-chart-line text-blue-400"></i>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2.5">
+                    <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Job Market <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Analytics BI</span></h1>
+                    <span class="bg-blue-500/10 text-blue-400 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border border-blue-500/30 uppercase tracking-widest">Enterprise v2.5</span>
+                </div>
+                <p class="text-slate-400 text-xs md:text-sm">767,235 Job Postings Analyzed • Ultra-Fast Materialized View Engine</p>
+            </div>
+        </div>
+        
+        <!-- Header Controls & Indicators -->
+        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
+            <!-- Connectivity Pill -->
+            <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl px-3 py-1.5 text-right flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <div>
+                    <span class="text-emerald-400 text-[10px] uppercase font-mono font-bold tracking-wider block">Warehouse Online</span>
+                    <span id="headerJobCount" class="text-slate-200 text-xs font-mono font-semibold">767,235 Postings</span>
+                </div>
+            </div>
+
+            <!-- API Response Latency Counter -->
+            <div class="hidden sm:flex bg-blue-950/40 border border-blue-500/30 rounded-xl px-3 py-1.5 text-right items-center space-x-2">
+                <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
+                <div>
+                    <span class="text-blue-400 text-[10px] uppercase font-mono font-bold tracking-wider block">Query Latency</span>
+                    <span id="headerQueryLatency" class="text-slate-200 text-xs font-mono font-bold">&lt; 2.5ms</span>
+                </div>
+            </div>
+
+            <!-- Quick Toolbar Buttons -->
+            <div class="flex items-center space-x-1.5 ml-auto lg:ml-0">
+                <!-- Command Palette Shortcut Button -->
+                <button onclick="openCommandPalette()" title="Command Palette (Ctrl + K)" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all">
+                    <i class="fa-solid fa-terminal text-blue-400"></i>
+                    <span class="hidden md:inline">Palette</span>
+                    <kbd class="hidden md:inline bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded font-mono border border-slate-700">Ctrl+K</kbd>
+                </button>
+
+                <!-- Share Link Button -->
+                <button onclick="copyShareableLink()" title="Share Workspace Filter Link" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all">
+                    <i class="fa-solid fa-share-nodes text-indigo-400"></i>
+                    <span class="hidden sm:inline">Share</span>
+                </button>
+
+                <!-- Export Executive Report (Print / PDF) -->
+                <button onclick="printExecutiveReport()" title="Export Executive PDF / Print Report" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all">
+                    <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                    <span class="hidden sm:inline">Export PDF</span>
+                </button>
+
+                <!-- Export CSV Dropdown -->
+                <button onclick="exportCurrentViewCSV()" title="Export Current View Data to CSV" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all">
+                    <i class="fa-solid fa-download text-emerald-400"></i>
+                    <span class="hidden sm:inline">CSV</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- GLOBAL STICKY FILTER BAR -->
+    <section class="sticky top-2 z-30 mb-6 bg-slate-900/90 backdrop-blur-xl border border-slate-800/90 rounded-2xl p-3 md:p-4 shadow-2xl no-print">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            
+            <!-- Quick Role Slicer Chips -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-filter text-blue-400"></i> Role:
+                </span>
+                <div class="flex gap-1.5 text-xs" id="roleChipContainer">
+                    <button onclick="setFilter('role', 'All Roles')" class="role-chip active px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">All Roles</button>
+                    <button onclick="setFilter('role', 'Data Engineer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">Data Engineer</button>
+                    <button onclick="setFilter('role', 'Data Analyst')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">Data Analyst</button>
+                    <button onclick="setFilter('role', 'Data Scientist')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">Data Scientist</button>
+                    <button onclick="setFilter('role', 'Machine Learning Engineer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">ML Engineer</button>
+                    <button onclick="setFilter('role', 'AI Prompt Engineer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">🤖 AI Prompt Eng</button>
+                    <button onclick="setFilter('role', 'Ethical Hacker')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">🛡️ Ethical Hacker</button>
+                    <button onclick="setFilter('role', 'Big Data Specialist')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">⚡ Big Data</button>
+                    <button onclick="setFilter('role', 'Blockchain Developer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">🔗 Blockchain</button>
+                    <button onclick="setFilter('role', 'Game Developer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">🕹️ Game Dev</button>
+                    <button onclick="setFilter('role', 'Cloud Engineer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">Cloud Engineer</button>
+                    <button onclick="setFilter('role', 'Software Engineer')" class="role-chip px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 whitespace-nowrap">Software Engineer</button>
+                </div>
+            </div>
+
+            <!-- Dropdown Filters (Seniority, Country, Salary Preset, Remote, Currency) -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+                <!-- Seniority Dropdown -->
+                <select id="senioritySelect" onchange="setFilter('seniority', this.value)" class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-1.5 focus:border-blue-500 focus:outline-none cursor-pointer">
+                    <option value="All Levels">All Seniorities</option>
+                    <option value="Senior">Senior Level</option>
+                    <option value="Mid-Entry">Mid-Entry Level</option>
+                </select>
+
+                <!-- Country Dropdown -->
+                <select id="countrySelect" onchange="setFilter('country', this.value)" class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-1.5 focus:border-blue-500 focus:outline-none cursor-pointer">
+                    <option value="All Countries">All Countries</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Germany">Germany</option>
+                    <option value="India">India</option>
+                    <option value="Ghana">Ghana</option>
+                    <option value="Nigeria">Nigeria</option>
+                </select>
+
+                <!-- Salary Preset Slicer -->
+                <select id="salaryMinSelect" onchange="setFilter('salaryMin', this.value)" class="bg-slate-950 border border-slate-800 text-emerald-400 font-semibold rounded-xl px-3 py-1.5 focus:border-emerald-500 focus:outline-none cursor-pointer">
+                    <option value="0">All Salaries</option>
+                    <option value="80000">&gt; $80,000/yr</option>
+                    <option value="120000">&gt; $120,000/yr</option>
+                    <option value="160000">&gt; $160,000/yr</option>
+                </select>
+
+                <!-- Currency Selector Dropdown -->
+                <div class="flex items-center space-x-1.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 rounded-xl px-2.5 py-1.5 shadow-md">
+                    <i class="fa-solid fa-coins text-amber-400"></i>
+                    <select id="currencySelect" onchange="setCurrency(this.value)" class="bg-transparent text-emerald-300 font-bold font-mono focus:outline-none cursor-pointer text-xs">
+                        <option value="USD" class="bg-slate-900 text-white">🇺🇸 USD ($)</option>
+                        <option value="EUR" class="bg-slate-900 text-white">🇪🇺 EUR (€)</option>
+                        <option value="GBP" class="bg-slate-900 text-white">🇬🇧 GBP (£)</option>
+                        <option value="CAD" class="bg-slate-900 text-white">🇨🇦 CAD (CA$)</option>
+                        <option value="AUD" class="bg-slate-900 text-white">🇦🇺 AUD (AU$)</option>
+                        <option value="INR" class="bg-slate-900 text-white">🇮🇳 INR (₹)</option>
+                        <option value="JPY" class="bg-slate-900 text-white">🇯🇵 JPY (¥)</option>
+                        <option value="NGN" class="bg-slate-900 text-white">🇳🇬 NGN (₦)</option>
+                        <option value="GHS" class="bg-slate-900 text-white">🇬🇭 GHS (GH₵)</option>
+                    </select>
+                </div>
+
+                <!-- Currency Converter Button -->
+                <button onclick="openCurrencyConverterModal()" class="bg-gradient-to-r from-emerald-600/30 to-blue-600/30 hover:from-emerald-600/50 hover:to-blue-600/50 text-emerald-300 border border-emerald-500/40 rounded-xl px-3 py-1.5 flex items-center space-x-1.5 font-bold shadow-md hover:scale-105 transition-all">
+                    <i class="fa-solid fa-calculator text-amber-400"></i>
+                    <span>Converter</span>
+                </button>
+
+                <!-- Remote Toggle Button -->
+                <button id="remoteToggleBtn" onclick="toggleRemoteFilter()" class="bg-slate-950 border border-slate-800 text-slate-400 rounded-xl px-3 py-1.5 flex items-center space-x-1.5 hover:border-blue-500 transition-all">
+                    <i class="fa-solid fa-house-laptop text-emerald-400"></i>
+                    <span id="remoteToggleText">Remote: OFF</span>
+                </button>
+
+                <!-- Reset Filters Button -->
+                <button onclick="resetAllFilters()" class="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-xl px-3 py-1.5 flex items-center space-x-1 transition-all">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Active Breadcrumb Indicator -->
+        <div class="mt-2.5 text-[11px] text-slate-400 flex flex-wrap items-center justify-between border-t border-slate-800/80 pt-2 gap-2">
+            <span id="activeFilterSummary"><i class="fa-solid fa-sliders text-blue-400"></i> Active Filter: <b>All Roles</b> | <b>All Levels</b> | <b>Global Scope</b></span>
+            <span class="text-blue-400 font-mono font-semibold bg-blue-950/60 px-2.5 py-0.5 rounded border border-blue-800/40">URL Synced <i class="fa-solid fa-link text-[10px]"></i></span>
+        </div>
+    </section>
+
+    <!-- EXECUTIVE OVERVIEW KPI STRIP -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-4 mb-6">
+        <!-- KPI 1: Open Positions -->
+        <div class="glass-card p-4 relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
+            <div class="flex justify-between items-start relative">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Filtered Job Volume</span>
+                <span class="bg-blue-500/15 text-blue-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-briefcase"></i></span>
+            </div>
+            <h3 id="kpiTotalJobs" class="text-2xl md:text-3xl font-black font-mono text-white mt-1">766,167</h3>
+            <div class="mt-2 flex items-center space-x-2 text-xs">
+                <span id="kpiJobShare" class="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">100% of Market</span>
+                <span class="text-slate-400 text-[11px]">• 140k Employers</span>
+            </div>
+        </div>
+
+        <!-- KPI 2: Global Median Salary -->
+        <div class="glass-card p-4 relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
+            <div class="flex justify-between items-start relative">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Median Annual Salary</span>
+                <span class="bg-emerald-500/15 text-emerald-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-dollar-sign"></i></span>
+            </div>
+            <h3 id="kpiMedianSalary" class="text-2xl md:text-3xl font-black font-mono text-emerald-400 mt-1">$115,000</h3>
+            <div class="mt-2 text-xs text-slate-400 flex justify-between font-mono">
+                <span>25th%: <b id="kpiP25Salary" class="text-slate-300">$85,000</b></span>
+                <span>75th%: <b id="kpiP75Salary" class="text-slate-300">$148,000</b></span>
+            </div>
+        </div>
+
+        <!-- KPI 3: #1 Requested Technology -->
+        <div class="glass-card p-4 relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
+            <div class="flex justify-between items-start relative">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">#1 Tech Requirement</span>
+                <span class="bg-purple-500/15 text-purple-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-fire"></i></span>
+            </div>
+            <h3 id="kpiTopSkill" class="text-2xl md:text-3xl font-black text-purple-400 mt-1">Python</h3>
+            <div class="mt-2 text-xs text-slate-400">
+                <span>Penetration Rate: <b id="kpiTopSkillPct" class="text-purple-300 font-mono">31.1%</b> of postings</span>
+            </div>
+        </div>
+
+        <!-- KPI 4: Highest-Paying Stack Combo -->
+        <div class="glass-card p-4 relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
+            <div class="flex justify-between items-start relative">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Top Tech Combo ROI</span>
+                <span class="bg-amber-500/15 text-amber-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-layer-group"></i></span>
+            </div>
+            <h3 id="kpiTopCombo" class="text-base md:text-lg font-bold text-amber-300 mt-1 truncate">Python + AWS + PyTorch</h3>
+            <div class="mt-2 text-xs text-emerald-400 font-mono font-bold flex items-center gap-1">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <span id="kpiComboUplift">+$34,200/yr Salary Boost</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE NAVIGATION TAB STRIP -->
+    <nav class="border-b border-slate-800/90 mb-6 flex overflow-x-auto space-x-1.5 text-sm font-semibold scrollbar-none no-print">
+        <button onclick="switchTab('demand')" id="tab-demand" class="tab-btn active px-4 py-3 text-slate-400 rounded-t-2xl flex items-center space-x-2 whitespace-nowrap">
+            <i class="fa-solid fa-chart-bar text-amber-400"></i> <span>Skill Demand & Category Matrix</span>
+        </button>
+        <button onclick="switchTab('roi')" id="tab-roi" class="tab-btn px-4 py-3 text-slate-400 rounded-t-2xl flex items-center space-x-2 whitespace-nowrap">
+            <i class="fa-solid fa-swords text-purple-400"></i> <span>Skill Combo ROI Matrix</span>
+        </button>
+        <button onclick="switchTab('jobs')" id="tab-jobs" class="tab-btn px-4 py-3 text-slate-400 rounded-t-2xl flex items-center space-x-2 whitespace-nowrap">
+            <i class="fa-solid fa-list-check text-emerald-400"></i> <span>Job Explorer & Market Feed</span>
+        </button>
+        <button onclick="switchTab('career')" id="tab-career" class="tab-btn px-4 py-3 text-slate-400 rounded-t-2xl flex items-center space-x-2 whitespace-nowrap">
+            <i class="fa-solid fa-bullseye text-rose-400"></i> <span>Career Skill Gap & Radar</span>
+        </button>
+        <button onclick="switchTab('employers')" id="tab-employers" class="tab-btn px-4 py-3 text-slate-400 rounded-t-2xl flex items-center space-x-2 whitespace-nowrap">
+            <i class="fa-solid fa-building text-cyan-400"></i> <span>Top Employers & Pay Benchmarks</span>
+        </button>
+    </nav>
+
+    <!-- MODULE 1 TAB: SKILL DEMAND & CATEGORY MATRIX -->
+    <div id="content-demand" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            
+            <!-- Chart A: Horizontal Ranked Bar Chart -->
+            <div class="glass-card p-5 lg:col-span-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-blue-500"></i> Top Requested Technologies
+                        </h3>
+                        <p class="text-xs text-slate-400">Aggregated market demand across filtered job postings</p>
+                    </div>
+                    <!-- Chart Toggle: % vs Count -->
+                    <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex text-xs font-bold">
+                        <button id="togglePctBtn" onclick="setChartMetric('%')" class="px-3 py-1 rounded-lg bg-blue-600 text-white">Percentage (%)</button>
+                        <button id="toggleCountBtn" onclick="setChartMetric('count')" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white">Count (#)</button>
+                    </div>
+                </div>
+
+                <div class="h-96 relative">
+                    <canvas id="demandChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart B: Category Breakdown Doughnut Chart -->
+            <div class="glass-card p-5">
+                <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-purple-400"></i> Category Distribution
+                </h3>
+                <p class="text-xs text-slate-400 mb-3">Share across technology categories</p>
+                
+                <div class="h-64 relative mb-4">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+
+                <div class="space-y-1.5 text-xs" id="categoryLegendContainer">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Leaderboard Data Table -->
+        <div class="glass-card p-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> Skill Penetration Leaderboard
+                </h3>
+                <span class="text-xs text-slate-400">Click any skill to filter jobs feed</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 border-b border-slate-800 uppercase font-semibold">
+                        <tr>
+                            <th class="pb-3 px-3">Skill Name</th>
+                            <th class="pb-3 px-3">Category</th>
+                            <th class="pb-3 px-3 text-right">Job Count</th>
+                            <th class="pb-3 px-3 text-right">Market Penetration</th>
+                            <th class="pb-3 px-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skillsTableBody" class="divide-y divide-slate-800/60">
+                        <!-- JS Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 2 TAB: SKILL COMBO ROI MATRIX & STACK CALCULATOR -->
+    <div id="content-roi" class="tab-content hidden">
+        <!-- Banner Header -->
+        <div class="bg-gradient-to-r from-purple-950/60 via-blue-950/40 to-slate-900 border border-purple-500/30 rounded-2xl p-5 mb-6 shadow-xl">
+            <div class="flex items-start space-x-3.5">
+                <div class="bg-purple-600/30 p-3 rounded-2xl text-purple-400 text-2xl"><i class="fa-solid fa-calculator"></i></div>
+                <div>
+                    <h3 class="text-lg font-black text-white">Skill Combo ROI Matrix — Compare Technology Stacks</h3>
+                    <p class="text-xs text-purple-200/80 mt-0.5">Explore high-value technology combinations and use the custom stack builder below to calculate predicted salary uplifts and market demand.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pre-configured ROI Comparison Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="roiCardsContainer">
+            <!-- Populated via JS -->
+        </div>
+
+        <!-- INTERACTIVE CUSTOM TECH STACK BUILDER & CALCULATOR -->
+        <div class="glass-card p-5 mb-6 border-purple-500/30">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 pb-3 border-b border-slate-800 gap-3">
+                <div>
+                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> Interactive Tech Stack ROI Calculator
+                    </h3>
+                    <p class="text-xs text-slate-400">Select 2 to 5 skills to estimate your combined median salary and market uplift</p>
+                </div>
+
+                <div class="flex items-center space-x-3 bg-purple-950/50 border border-purple-500/30 px-3 py-1.5 rounded-xl">
+                    <span class="text-xs text-purple-300 font-semibold">Estimated Stack Salary:</span>
+                    <span id="customStackSalaryText" class="text-lg font-black font-mono text-emerald-400">$148,000/yr</span>
+                    <span id="customStackUpliftText" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">+$33,000/yr Uplift</span>
+                </div>
+            </div>
+
+            <!-- Checkable Multi-select Pills -->
+            <div class="flex flex-wrap gap-2 text-xs mb-4" id="customStackPillContainer">
+                <!-- JS Populated -->
+            </div>
+        </div>
+
+        <!-- Detailed ROI Breakdown Data Table -->
+        <div class="glass-card p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-table-list text-purple-400"></i> Benchmark Technology Stack Matrix
+                </h4>
+                <button onclick="exportRoiCSV()" class="bg-slate-900 hover:bg-slate-800 text-purple-400 border border-purple-500/30 text-xs px-3 py-1.5 rounded-xl font-bold">
+                    <i class="fa-solid fa-file-csv mr-1"></i> Export ROI Matrix CSV
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 border-b border-slate-800 uppercase font-semibold">
+                        <tr>
+                            <th class="pb-3 px-3">Tech Combination</th>
+                            <th class="pb-3 px-3">Included Skills</th>
+                            <th class="pb-3 px-3 font-mono">Median Salary</th>
+                            <th class="pb-3 px-3 font-mono">Salary Uplift ($)</th>
+                            <th class="pb-3 px-3 font-mono">Uplift %</th>
+                            <th class="pb-3 px-3">Job Openings</th>
+                            <th class="pb-3 px-3">Demand Tier</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roiTableBody" class="divide-y divide-slate-800/60 font-mono">
+                        <!-- JS Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 3 TAB: JOB EXPLORER & MARKET FEED -->
+    <div id="content-jobs" class="tab-content hidden">
+        <!-- Controls Header -->
+        <div class="glass-card p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="relative w-full md:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                <input type="text" id="jobSearchInput" onkeyup="handleJobSearch()" placeholder="Search title, company, or skill..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:border-blue-500 focus:outline-none">
+            </div>
+
+            <div class="flex flex-wrap items-center space-x-3 w-full md:w-auto justify-end text-xs">
+                <span class="text-slate-400">Sort by:</span>
+                <select id="jobSortSelect" onchange="loadJobsFeed()" class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-2 focus:border-blue-500">
+                    <option value="date">Most Recent</option>
+                    <option value="salary">Highest Salary</option>
+                    <option value="company">Company Name</option>
+                </select>
+
+                <button onclick="exportJobsCSV()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 px-3 py-2 rounded-xl font-bold flex items-center space-x-1">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Export Jobs CSV</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Grid Table -->
+        <div class="glass-card overflow-hidden mb-4">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-950/80 text-slate-400 uppercase font-bold border-b border-slate-800">
+                        <tr>
+                            <th class="py-3 px-4">Role Title</th>
+                            <th class="py-3 px-4">Company</th>
+                            <th class="py-3 px-4">Location</th>
+                            <th class="py-3 px-4">Seniority</th>
+                            <th class="py-3 px-4 font-mono">Disclosed Salary</th>
+                            <th class="py-3 px-4">Key Skills</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobsTableBody" class="divide-y divide-slate-800/60">
+                        <!-- JS Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="flex items-center justify-between text-xs text-slate-400 px-2">
+            <span id="jobsPageSummary">Showing Page 1 of 1</span>
+            <div class="flex items-center space-x-2">
+                <button id="prevPageBtn" onclick="changeJobPage(-1)" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl hover:bg-slate-800 disabled:opacity-50 font-bold">Previous</button>
+                <button id="nextPageBtn" onclick="changeJobPage(1)" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl hover:bg-slate-800 disabled:opacity-50 font-bold">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 4 TAB: CAREER SKILL GAP ANALYZER & RADAR CHART -->
+    <div id="content-career" class="tab-content hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            
+            <!-- Skill Selector Form -->
+            <div class="glass-card p-5">
+                <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-rose-400"></i> Career Profile & Target
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">Input your stack to evaluate role readiness score</p>
+
+                <!-- Target Role Select -->
+                <div class="mb-4">
+                    <label class="text-xs text-slate-300 font-bold uppercase block mb-1.5">Target Role:</label>
+                    <select id="analyzerRoleSelect" onchange="runGapAnalysis()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:border-blue-500">
+                        <option value="Data Engineer">Data Engineer</option>
+                        <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                        <option value="Data Scientist">Data Scientist</option>
+                        <option value="Data Analyst">Data Analyst</option>
+                    </select>
+                </div>
+
+                <!-- Current Skill Checkboxes -->
+                <div class="mb-4">
+                    <label class="text-xs text-slate-300 font-bold uppercase block mb-2">Check Your Current Skills:</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs" id="analyzerSkillCheckboxes">
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="SQL" checked onchange="runGapAnalysis()"> <span>SQL</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="Python" checked onchange="runGapAnalysis()"> <span>Python</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="R" onchange="runGapAnalysis()"> <span>R</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="Tableau" onchange="runGapAnalysis()"> <span>Tableau</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="Excel" onchange="runGapAnalysis()"> <span>Excel</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="AWS" onchange="runGapAnalysis()"> <span>AWS</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="Spark" onchange="runGapAnalysis()"> <span>Spark</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="PyTorch" onchange="runGapAnalysis()"> <span>PyTorch</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="Snowflake" onchange="runGapAnalysis()"> <span>Snowflake</span></label>
+                        <label class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 cursor-pointer"><input type="checkbox" value="Airflow" onchange="runGapAnalysis()"> <span>Airflow</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Output Dashboard -->
+            <div class="glass-card p-5 lg:col-span-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-slate-800 gap-4">
+                    <div>
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block">Target Readiness Score</span>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h2 id="gapScoreText" class="text-4xl font-black font-mono text-emerald-400">67%</h2>
+                            <span class="text-xs text-slate-400">Match for <b id="gapTargetRoleTitle" class="text-white">Data Engineer</b></span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-3.5 text-right">
+                        <span class="text-xs text-emerald-400 font-bold block">Estimated Salary Boost Potential:</span>
+                        <span id="gapSalaryBoostText" class="text-xl font-black font-mono text-white">+$40,400/yr</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Acquired Skills -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-emerald-400"></i> Acquired Skills
+                        </h4>
+                        <div id="gapAcquiredContainer" class="flex flex-wrap gap-1.5">
+                            <!-- JS Populated -->
+                        </div>
+                    </div>
+
+                    <!-- Missing Skills Prioritized -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-amber-400"></i> High-Impact Skill Gaps
+                        </h4>
+                        <div id="gapMissingContainer" class="space-y-2">
+                            <!-- JS Populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COMPETENCY RADAR CHART CONTAINER -->
+        <div class="glass-card p-5">
+            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-compass text-rose-400"></i> Competency Radar Matrix
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Visual comparison of target role benchmark expectations vs your current acquired skills</p>
+            <div class="h-80 relative max-w-xl mx-auto">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 5 TAB: TOP EMPLOYERS & COMPENSATION LEADERBOARD -->
+    <div id="content-employers" class="tab-content hidden">
+        <!-- Top Employers Bar Chart -->
+        <div class="glass-card p-5 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-building text-cyan-400"></i> Top Paying Tech Employers
+                    </h3>
+                    <p class="text-xs text-slate-400">Average disclosed yearly salary across top hiring organizations</p>
+                </div>
+                <button onclick="exportEmployersCSV()" class="bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 px-3 py-1.5 rounded-xl text-xs font-bold">
+                    <i class="fa-solid fa-file-csv mr-1"></i> Export Employers CSV
+                </button>
+            </div>
+
+            <div class="h-80 relative">
+                <canvas id="employersChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="glass-card p-5">
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-list text-cyan-400"></i> Top Employer Leaderboard
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 uppercase font-semibold border-b border-slate-800">
+                        <tr>
+                            <th class="pb-3 px-3">Company</th>
+                            <th class="pb-3 px-3 text-right">Total Job Postings</th>
+                            <th class="pb-3 px-3 text-right">Salaried Postings</th>
+                            <th class="pb-3 px-3 text-right font-mono">Average Disclosed Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employersTableBody" class="divide-y divide-slate-800/60 font-mono">
+                        <!-- JS Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE-OVER QUICK VIEW JOB DRAWER -->
+    <div id="jobDrawerOverlay" onclick="closeJobDrawer()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden no-print"></div>
+    <div id="jobDrawer" class="fixed right-0 top-0 bottom-0 w-full sm:w-[520px] bg-slate-900 border-l border-slate-800 z-50 p-6 overflow-y-auto drawer drawer-closed no-print shadow-2xl">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+            <span class="text-xs text-blue-400 font-bold uppercase tracking-wider">Job Details & Requirements</span>
+            <button onclick="closeJobDrawer()" class="text-slate-400 hover:text-white p-1 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="mt-6 space-y-6">
+            <div>
+                <span id="drawerCompany" class="text-xs text-slate-400 font-bold block">Amazon</span>
+                <h2 id="drawerTitle" class="text-xl font-black text-white mt-0.5">Senior Data Engineer - Cloud Infrastructure</h2>
+                <div class="flex flex-wrap gap-2 mt-3">
+                    <span id="drawerLocation" class="bg-slate-800 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg">Seattle, WA</span>
+                    <span id="drawerSalary" class="bg-emerald-950 text-emerald-400 border border-emerald-500/30 text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg">$165,000/yr</span>
+                    <span id="drawerSeniority" class="bg-purple-950 text-purple-400 text-[11px] font-bold px-2.5 py-1 rounded-lg">Senior</span>
+                </div>
+            </div>
+
+            <div class="border-t border-b border-slate-800 py-4 space-y-2.5 text-xs text-slate-300">
+                <div class="flex justify-between"><span class="text-slate-400">Remote Work Status:</span> <b id="drawerRemote" class="text-white">Yes (Work From Home)</b></div>
+                <div class="flex justify-between"><span class="text-slate-400">Degree Requirement:</span> <b id="drawerDegree" class="text-white">No Degree Required</b></div>
+                <div class="flex justify-between"><span class="text-slate-400">Health Insurance:</span> <b id="drawerInsurance" class="text-white">Offered</b></div>
+                <div class="flex justify-between"><span class="text-slate-400">Posted Date:</span> <b id="drawerPosted" class="text-slate-300 font-mono">2023-11-04</b></div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Required Technical Skills:</h4>
+                <div id="drawerSkills" class="flex flex-wrap gap-1.5">
+                    <!-- Badges -->
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Job Description Summary:</h4>
+                <p class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                    We are seeking an experienced Senior Data Engineer to design, scale, and maintain our enterprise data lakehouse and streaming ETL pipelines. You will partner with Data Scientists and Analytics Engineers to build high-throughput data models supporting critical business intelligence.
+                </p>
+            </div>
+
+            <a id="drawerApplyBtn" href="#" target="_blank" class="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center font-bold py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all">
+                Apply Directly <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- LIVE CURRENCY CONVERTER MODAL -->
+    <div id="currencyModalOverlay" onclick="closeCurrencyConverterModal()" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden transition-opacity no-print"></div>
+    <div id="currencyModal" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-slate-900 border border-emerald-500/40 rounded-2xl z-50 p-5 md:p-6 shadow-2xl hidden max-h-[90vh] overflow-y-auto no-print">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+            <div class="flex items-center space-x-2.5">
+                <span class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl text-lg"><i class="fa-solid fa-coins"></i></span>
+                <div>
+                    <h3 class="text-lg font-black text-white">Global Salary Currency Converter</h3>
+                    <p class="text-xs text-slate-400">Real-time multi-currency exchange rate calculator</p>
+                </div>
+            </div>
+            <button onclick="closeCurrencyConverterModal()" class="text-slate-400 hover:text-white p-1 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="mt-5 space-y-5">
+            <!-- Inputs Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- Salary Input -->
+                <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1.5">Salary Amount (in USD):</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-2.5 text-emerald-400 font-bold text-sm">$</span>
+                        <input type="number" id="converterAmountInput" oninput="updateCurrencyConverterModal()" value="115000" step="1000" class="w-full bg-slate-950 border border-slate-800 text-white font-mono font-black text-sm rounded-xl pl-8 pr-4 py-2.5 focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Pay Period -->
+                <div>
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1.5">Pay Period:</label>
+                    <select id="converterPeriodSelect" onchange="updateCurrencyConverterModal()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 font-bold text-xs rounded-xl p-2.5 focus:border-emerald-500 focus:outline-none cursor-pointer">
+                        <option value="year">Annual (/yr)</option>
+                        <option value="month">Monthly (/mo)</option>
+                        <option value="hour">Hourly (/hr)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Currency Conversion Grid Output -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                    <span>Live Multi-Currency Breakdown:</span>
+                    <span class="text-emerald-400 text-[11px] font-semibold"><i class="fa-solid fa-arrows-rotate mr-1"></i> Global Exchange Rates</span>
+                </h4>
+                <div id="currencyCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-[11px] text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <span>💡 Click any currency card above to select it as global dashboard currency.</span>
+                <button onclick="closeCurrencyConverterModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-xl text-xs shadow-md">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMAND PALETTE MODAL (Ctrl + K) -->
+    <div id="commandPaletteOverlay" onclick="closeCommandPalette()" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden no-print"></div>
+    <div id="commandPaletteModal" class="fixed left-1/2 top-1/4 -translate-x-1/2 w-11/12 max-w-xl bg-slate-900 border border-slate-700/80 rounded-2xl z-50 p-4 shadow-2xl hidden no-print">
+        <div class="relative mb-3">
+            <i class="fa-solid fa-terminal absolute left-3.5 top-3.5 text-blue-400 text-sm"></i>
+            <input type="text" id="commandInput" onkeyup="filterCommandPalette()" placeholder="Type a command or jump to view (e.g. ROI, Jobs, Employers, Currency)..." class="w-full bg-slate-950 border border-slate-800 text-white text-xs rounded-xl pl-9 pr-4 py-3 focus:border-blue-500 focus:outline-none">
+        </div>
+        <div class="space-y-1 text-xs max-h-64 overflow-y-auto" id="commandList">
+            <div onclick="executeCommand('demand')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-chart-bar text-amber-400 mr-2"></i> Jump to Skill Demand Matrix</span>
+                <span class="text-[10px] text-slate-500 font-mono">Tab 1</span>
+            </div>
+            <div onclick="executeCommand('roi')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-swords text-purple-400 mr-2"></i> Jump to Skill Combo ROI Matrix</span>
+                <span class="text-[10px] text-slate-500 font-mono">Tab 2</span>
+            </div>
+            <div onclick="executeCommand('jobs')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-list-check text-emerald-400 mr-2"></i> Jump to Job Explorer Feed</span>
+                <span class="text-[10px] text-slate-500 font-mono">Tab 3</span>
+            </div>
+            <div onclick="executeCommand('career')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-bullseye text-rose-400 mr-2"></i> Jump to Career Skill Gap Analyzer</span>
+                <span class="text-[10px] text-slate-500 font-mono">Tab 4</span>
+            </div>
+            <div onclick="executeCommand('employers')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-building text-cyan-400 mr-2"></i> Jump to Top Employers</span>
+                <span class="text-[10px] text-slate-500 font-mono">Tab 5</span>
+            </div>
+            <div onclick="executeCommand('converter')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-calculator text-amber-400 mr-2"></i> Open Currency Converter Calculator</span>
+                <span class="text-[10px] text-slate-500 font-mono">Modal</span>
+            </div>
+            <div onclick="executeCommand('export-pdf')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-file-pdf text-rose-400 mr-2"></i> Export Executive PDF Report</span>
+                <span class="text-[10px] text-slate-500 font-mono">Action</span>
+            </div>
+            <div onclick="executeCommand('share')" class="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer flex justify-between items-center text-slate-200">
+                <span><i class="fa-solid fa-share-nodes text-indigo-400 mr-2"></i> Copy Shareable Workspace URL</span>
+                <span class="text-[10px] text-slate-500 font-mono">Action</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none no-print"></div>
+
+    <!-- MAIN JAVASCRIPT ENGINE & STATE CONTROLLER -->
+    <script>
+        // Global Currency Definitions & Exchange Rates vs USD
+        const CURRENCIES = {
+            USD: { symbol: '$', code: 'USD', name: 'US Dollar', rate: 1.0, flag: '🇺🇸' },
+            EUR: { symbol: '€', code: 'EUR', name: 'Euro', rate: 0.92, flag: '🇪🇺' },
+            GBP: { symbol: '£', code: 'GBP', name: 'British Pound', rate: 0.79, flag: '🇬🇧' },
+            CAD: { symbol: 'CA$', code: 'CAD', name: 'Canadian Dollar', rate: 1.36, flag: '🇨🇦' },
+            AUD: { symbol: 'AU$', code: 'AUD', name: 'Australian Dollar', rate: 1.52, flag: '🇦🇺' },
+            INR: { symbol: '₹', code: 'INR', name: 'Indian Rupee', rate: 83.5, flag: '🇮🇳' },
+            JPY: { symbol: '¥', code: 'JPY', name: 'Japanese Yen', rate: 155.0, flag: '🇯🇵' },
+            NGN: { symbol: '₦', code: 'NGN', name: 'Nigerian Naira', rate: 1600.0, flag: '🇳🇬' },
+            GHS: { symbol: 'GH₵', code: 'GHS', name: 'Ghanaian Cedi', rate: 15.5, flag: '🇬🇭' }
+        };
+
+        // Available Custom Skills for Stack Calculator
+        const AVAILABLE_STACK_SKILLS = [
+            { name: 'SQL', uplift: 8000, demand: 28.0, category: 'Database' },
+            { name: 'Python', uplift: 14000, demand: 31.1, category: 'Programming' },
+            { name: 'AWS', uplift: 21000, demand: 18.5, category: 'Cloud' },
+            { name: 'Spark', uplift: 26000, demand: 12.4, category: 'Big Data' },
+            { name: 'PyTorch', uplift: 32000, demand: 8.2, category: 'AI/ML' },
+            { name: 'Snowflake', uplift: 22000, demand: 11.0, category: 'Database' },
+            { name: 'Airflow', uplift: 19000, demand: 9.8, category: 'Data Eng' },
+            { name: 'Docker', uplift: 16000, demand: 14.2, category: 'DevOps' },
+            { name: 'Kubernetes', uplift: 28000, demand: 10.5, category: 'DevOps' },
+            { name: 'Tableau', uplift: 9000, demand: 19.1, category: 'Analytics' }
+        ];
+
+        // Global Dashboard State
+        const state = {
+            role: 'All Roles',
+            seniority: 'All Levels',
+            country: 'All Countries',
+            salaryMin: 0,
+            remote: false,
+            currency: 'USD',
+            activeTab: 'demand',
+            chartMetric: '%', // '%' or 'count'
+            jobsPage: 1,
+            jobSearch: '',
+            jobSort: 'date',
+            customStack: ['SQL', 'Python', 'AWS'],
+            rawKpis: null,
+            rawRoiData: null,
+            rawJobsRes: null,
+            rawEmployersData: null,
+            rawGapData: null
+        };
+
+        let demandChartInstance = null;
+        let categoryChartInstance = null;
+        let radarChartInstance = null;
+        let employersChartInstance = null;
+
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto bg-slate-900 border ${type === 'success' ? 'border-emerald-500 text-emerald-300' : 'border-blue-500 text-blue-300'} px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center space-x-2 transform translate-y-4 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-info text-blue-400'} text-base"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Currency Formatter Helper
+        function formatSalary(usdAmount, prefix = '', suffix = '') {
+            if (usdAmount === null || usdAmount === undefined || isNaN(usdAmount) || usdAmount <= 0) {
+                return 'Salary Undisclosed';
+            }
+            const curr = CURRENCIES[state.currency] || CURRENCIES.USD;
+            const converted = usdAmount * curr.rate;
+            const formatted = Math.round(converted).toLocaleString();
+            return `${prefix}${curr.symbol}${formatted}${suffix}`;
+        }
+
+        function setCurrency(code) {
+            if (!CURRENCIES[code]) return;
+            state.currency = code;
+            updateURL();
+            syncUIWithState();
+            reRenderAllSalaries();
+            updateCurrencyConverterModal();
+            renderCustomStackCalculator();
+            showToast(`Currency updated to ${code} (${CURRENCIES[code].symbol})`, 'success');
+        }
+
+        function reRenderAllSalaries() {
+            if (state.rawKpis) renderKPIs(state.rawKpis);
+            if (state.rawRoiData) renderRoiMatrixData(state.rawRoiData);
+            if (state.rawJobsRes) renderJobsFeedData(state.rawJobsRes);
+            if (state.rawEmployersData) {
+                renderEmployersData(state.rawEmployersData);
+                renderEmployersChart(state.rawEmployersData);
+            }
+            if (state.rawGapData) renderGapAnalysisData(state.rawGapData);
+        }
+
+        async function loadCountriesDropdown() {
+            const countries = await fetchAPI('/api/countries');
+            if (!countries || !Array.isArray(countries) || countries.length === 0) return;
+            const select = document.getElementById('countrySelect');
+            if (!select) return;
+            const currentVal = state.country;
+            select.innerHTML = '<option value="All Countries">All Countries (160 Markets)</option>' +
+                countries.map(c => `<option value="${c}">${c}</option>`).join('');
+            select.value = currentVal;
+        }
+
+        // Initialize state from URL on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('role')) state.role = params.get('role');
+            if (params.get('seniority')) state.seniority = params.get('seniority');
+            if (params.get('country')) state.country = params.get('country');
+            if (params.get('salaryMin')) state.salaryMin = parseInt(params.get('salaryMin')) || 0;
+            if (params.get('remote')) state.remote = params.get('remote') === 'true';
+            if (params.get('currency')) state.currency = params.get('currency');
+
+            loadCountriesDropdown();
+            syncUIWithState();
+            refreshDashboard();
+            renderCustomStackPills();
+            renderCustomStackCalculator();
+        });
+
+        function syncUIWithState() {
+            // Role Chips
+            document.querySelectorAll('#roleChipContainer button').forEach(btn => {
+                const r = btn.innerText.trim();
+                btn.classList.toggle('active', (r === 'All Roles' && state.role === 'All Roles') || r.includes(state.role));
+            });
+
+            // Selects
+            document.getElementById('senioritySelect').value = state.seniority;
+            document.getElementById('countrySelect').value = state.country;
+            document.getElementById('salaryMinSelect').value = state.salaryMin;
+            document.getElementById('currencySelect').value = state.currency;
+
+            // Remote Btn
+            const remoteBtn = document.getElementById('remoteToggleBtn');
+            const remoteTxt = document.getElementById('remoteToggleText');
+            if (state.remote) {
+                remoteBtn.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-300');
+                remoteTxt.innerText = 'Remote: ON';
+            } else {
+                remoteBtn.classList.remove('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-300');
+                remoteTxt.innerText = 'Remote: OFF';
+            }
+
+            // Breadcrumb Summary
+            const currSymbol = (CURRENCIES[state.currency] || CURRENCIES.USD).symbol;
+            document.getElementById('activeFilterSummary').innerHTML = 
+                `<i class="fa-solid fa-sliders text-blue-400"></i> Filter Scope: <b>${state.role}</b> | <b>${state.seniority}</b> | <b>${state.country}</b> ${state.salaryMin > 0 ? `| <b class="text-emerald-400">&gt;$${state.salaryMin.toLocaleString()}</b>` : ''} ${state.remote ? '| <b class="text-emerald-400">Remote Only</b>' : ''} | <b class="text-amber-400">Currency: ${state.currency} (${currSymbol})</b>`;
+        }
+
+        function setFilter(type, val) {
+            state[type] = val;
+            updateURL();
+            syncUIWithState();
+            refreshDashboard();
+        }
+
+        function toggleRemoteFilter() {
+            state.remote = !state.remote;
+            updateURL();
+            syncUIWithState();
+            refreshDashboard();
+        }
+
+        function resetAllFilters() {
+            state.role = 'All Roles';
+            state.seniority = 'All Levels';
+            state.country = 'All Countries';
+            state.salaryMin = 0;
+            state.currency = 'USD';
+            state.remote = false;
+            updateURL();
+            syncUIWithState();
+            refreshDashboard();
+            showToast('All dashboard filters reset to default', 'info');
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            if (state.role !== 'All Roles') params.set('role', state.role);
+            if (state.seniority !== 'All Levels') params.set('seniority', state.seniority);
+            if (state.country !== 'All Countries') params.set('country', state.country);
+            if (state.salaryMin > 0) params.set('salaryMin', state.salaryMin);
+            if (state.currency !== 'USD') params.set('currency', state.currency);
+            if (state.remote) params.set('remote', 'true');
+            
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.pushState({ path: newUrl }, '', newUrl);
+        }
+
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-blue-400'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active', 'text-blue-400');
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+
+            if (tabId === 'roi') loadRoiMatrix();
+            if (tabId === 'jobs') loadJobsFeed();
+            if (tabId === 'career') runGapAnalysis();
+            if (tabId === 'employers') loadEmployers();
+        }
+
+        // Fetch API Helper with High-Resolution Latency Measurement
+        async function fetchAPI(endpoint) {
+            const t0 = performance.now();
+            try {
+                const res = await fetch(endpoint);
+                const data = await res.json();
+                const latency = (performance.now() - t0).toFixed(1);
+                const latencyEl = document.getElementById('headerQueryLatency');
+                if (latencyEl) {
+                    latencyEl.innerText = `${latency}ms`;
+                }
+                return data;
+            } catch (err) {
+                console.error("API error:", err);
+                return null;
+            }
+        }
+
+        // Render KPI Strip
+        function renderKPIs(kpis) {
+            if (!kpis) return;
+            document.getElementById('kpiTotalJobs').innerText = (kpis.total_postings || 0).toLocaleString();
+            document.getElementById('headerJobCount').innerText = `${(kpis.total_postings || 0).toLocaleString()} Postings`;
+            
+            document.getElementById('kpiMedianSalary').innerText = formatSalary(kpis.median_salary);
+            document.getElementById('kpiP25Salary').innerText = formatSalary(kpis.p25_salary);
+            document.getElementById('kpiP75Salary').innerText = formatSalary(kpis.p75_salary);
+            
+            document.getElementById('kpiTopSkill').innerText = kpis.top_skill || 'Python';
+            document.getElementById('kpiTopSkillPct').innerText = `${kpis.top_skill_pct || 0}%`;
+            document.getElementById('kpiTopCombo').innerText = kpis.top_combo || 'Python + AWS + PyTorch';
+            
+            const upliftRaw = kpis.top_combo_uplift_usd || 34200;
+            document.getElementById('kpiComboUplift').innerText = `${formatSalary(upliftRaw, '+')}/yr Salary Boost`;
+            document.getElementById('kpiJobShare').innerText = `${(((kpis.total_postings || 0) / 766167) * 100).toFixed(1)}% of Market`;
+        }
+
+        // Refresh Main Dashboard (KPIs + Demand Chart)
+        async function refreshDashboard() {
+            const query = `role=${encodeURIComponent(state.role)}&seniority=${encodeURIComponent(state.seniority)}&country=${encodeURIComponent(state.country)}&remote=${state.remote}&salary_min=${state.salaryMin}`;
+            
+            // 1. Fetch KPIs
+            const kpis = await fetchAPI(`/api/kpis?${query}`);
+            if (kpis) {
+                state.rawKpis = kpis;
+                renderKPIs(kpis);
+            }
+
+            // 2. Fetch Top Skills Matrix
+            const skills = await fetchAPI(`/api/skills/matrix?${query}&limit=15`);
+            if (skills) {
+                renderDemandChart(skills);
+                renderCategoryChart(skills);
+                renderSkillsTable(skills);
+            }
+
+            // 3. Refresh Active Module Tab
+            if (state.activeTab === 'roi') loadRoiMatrix();
+            if (state.activeTab === 'jobs') loadJobsFeed();
+            if (state.activeTab === 'career') runGapAnalysis();
+            if (state.activeTab === 'employers') loadEmployers();
+        }
+
+        // Toggle Chart Metric (% vs Count)
+        function setChartMetric(m) {
+            state.chartMetric = m;
+            document.getElementById('togglePctBtn').className = m === '%' ? 'px-3 py-1 rounded-lg bg-blue-600 text-white' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white';
+            document.getElementById('toggleCountBtn').className = m === 'count' ? 'px-3 py-1 rounded-lg bg-blue-600 text-white' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white';
+            refreshDashboard();
+        }
+
+        // Render Chart.js Horizontal Bar Chart
+        function renderDemandChart(skills) {
+            const ctx = document.getElementById('demandChart').getContext('2d');
+            if (demandChartInstance) demandChartInstance.destroy();
+
+            const labels = skills.map(s => s.skill_name);
+            const dataVals = skills.map(s => state.chartMetric === '%' ? s.pct_of_total_postings : s.demand_count);
+
+            demandChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: state.chartMetric === '%' ? 'Percentage of Postings (%)' : 'Job Count',
+                        data: dataVals,
+                        backgroundColor: 'rgba(59, 130, 246, 0.85)',
+                        borderColor: '#3B82F6',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#60A5FA'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.raw}${state.chartMetric === '%' ? '%' : ' postings'}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: '#1E294B' }, ticks: { color: '#94A3B8', font: { family: 'JetBrains Mono' } } },
+                        y: { grid: { display: false }, ticks: { color: '#F3F4F6', font: { weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        // Render Skill Category Doughnut Chart
+        function renderCategoryChart(skills) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            const categories = {};
+            skills.forEach(s => {
+                const cat = s.skill_type || 'other';
+                categories[cat] = (categories[cat] || 0) + (s.demand_count || 1);
+            });
+
+            const labels = Object.keys(categories);
+            const dataVals = Object.values(categories);
+            const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4'];
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataVals,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#0E1424'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Custom Legend
+            const legendContainer = document.getElementById('categoryLegendContainer');
+            if (legendContainer) {
+                const totalSum = dataVals.reduce((a, b) => a + b, 0);
+                legendContainer.innerHTML = labels.map((cat, i) => {
+                    const pct = totalSum > 0 ? ((dataVals[i] / totalSum) * 100).toFixed(1) : 0;
+                    return `
+                    <div class="flex justify-between items-center">
+                        <span class="flex items-center gap-1.5 text-slate-300">
+                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${colors[i % colors.length]}"></span>
+                            <span class="capitalize">${cat.replace('_', ' ')}</span>
+                        </span>
+                        <span class="font-mono font-bold text-slate-400">${pct}%</span>
+                    </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderSkillsTable(skills) {
+            const tbody = document.getElementById('skillsTableBody');
+            tbody.innerHTML = skills.map(s => {
+                let badgeClass = 'badge-prog';
+                if (s.skill_type === 'cloud') badgeClass = 'badge-cloud';
+                if (s.skill_type === 'analyst_tools') badgeClass = 'badge-tools';
+                if (s.skill_type === 'databases') badgeClass = 'badge-db';
+                if (s.skill_type === 'libraries') badgeClass = 'badge-lib';
+
+                return `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="py-3 px-3 font-bold text-white">${s.skill_name}</td>
+                    <td class="py-3 px-3"><span class="${badgeClass} text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">${s.skill_type}</span></td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-300">${(s.demand_count || 0).toLocaleString()}</td>
+                    <td class="py-3 px-3 text-right font-mono font-bold text-blue-400">${s.pct_of_total_postings}%</td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="filterBySkill('${s.skill_name}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-2.5 py-1 rounded-lg text-[11px] font-bold">Filter Jobs</button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function filterBySkill(skillName) {
+            state.jobSearch = skillName;
+            switchTab('jobs');
+            document.getElementById('jobSearchInput').value = skillName;
+            loadJobsFeed();
+            showToast(`Filtering jobs by skill: ${skillName}`, 'info');
+        }
+
+        // CUSTOM TECH STACK BUILDER CALCULATOR
+        function renderCustomStackPills() {
+            const container = document.getElementById('customStackPillContainer');
+            if (!container) return;
+
+            container.innerHTML = AVAILABLE_STACK_SKILLS.map(s => {
+                const isSelected = state.customStack.includes(s.name);
+                return `
+                <button onclick="toggleCustomStackSkill('${s.name}')" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center space-x-1.5 ${isSelected ? 'bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-500/25' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-purple-500/50'}">
+                    <i class="fa-solid ${isSelected ? 'fa-check-square' : 'fa-square'} text-[10px]"></i>
+                    <span>${s.name}</span>
+                    <span class="text-[10px] opacity-75 font-mono">(+${(s.uplift/1000).toFixed(0)}k)</span>
+                </button>
+                `;
+            }).join('');
+        }
+
+        function toggleCustomStackSkill(skillName) {
+            if (state.customStack.includes(skillName)) {
+                if (state.customStack.length <= 1) {
+                    showToast('Keep at least 1 skill selected in stack', 'info');
+                    return;
+                }
+                state.customStack = state.customStack.filter(s => s !== skillName);
+            } else {
+                if (state.customStack.length >= 5) {
+                    showToast('Maximum 5 skills allowed in custom stack calculation', 'info');
+                    return;
+                }
+                state.customStack.push(skillName);
+            }
+            renderCustomStackPills();
+            renderCustomStackCalculator();
+        }
+
+        function renderCustomStackCalculator() {
+            const baseSalary = (state.rawKpis && state.rawKpis.median_salary) ? state.rawKpis.median_salary : 115000;
+            
+            let totalUplift = 0;
+            state.customStack.forEach(sName => {
+                const item = AVAILABLE_STACK_SKILLS.find(x => x.name === sName);
+                if (item) totalUplift += item.uplift;
+            });
+
+            // Diminishing returns scaling factor
+            totalUplift = Math.round(totalUplift * Math.pow(0.88, state.customStack.length - 1));
+            const calculatedSalary = baseSalary + totalUplift;
+
+            document.getElementById('customStackSalaryText').innerText = formatSalary(calculatedSalary, '', '/yr');
+            document.getElementById('customStackUpliftText').innerText = `${formatSalary(totalUplift, '+')}/yr Uplift`;
+        }
+
+        // Load ROI Matrix
+        async function loadRoiMatrix() {
+            const data = await fetchAPI('/api/skills/roi-combo');
+            if (!data) return;
+            state.rawRoiData = data;
+            renderRoiMatrixData(data);
+        }
+
+        function renderRoiMatrixData(data) {
+            if (!data) return;
+            const cardsContainer = document.getElementById('roiCardsContainer');
+            cardsContainer.innerHTML = data.map(c => `
+                <div class="glass-card p-4">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[11px] font-bold text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/40">${c.market_demand_rating}</span>
+                        <span class="text-emerald-400 font-mono font-black text-xs">+${c.pct_uplift}% Uplift</span>
+                    </div>
+                    <h4 class="text-base font-black text-white mt-2">${c.combo_name}</h4>
+                    <div class="mt-3 space-y-1 text-xs">
+                        <div class="flex justify-between text-slate-400"><span>Median Salary:</span> <b class="text-white font-mono">${formatSalary(c.median_salary)}</b></div>
+                        <div class="flex justify-between text-slate-400"><span>Salary Uplift:</span> <b class="text-emerald-400 font-mono">${formatSalary(c.salary_uplift_usd, '+')}</b></div>
+                        <div class="flex justify-between text-slate-400"><span>Job Volume:</span> <b class="text-slate-300 font-mono">${c.job_count.toLocaleString()} (${c.pct_of_market}%)</b></div>
+                    </div>
+                </div>
+            `).join('');
+
+            const tbody = document.getElementById('roiTableBody');
+            tbody.innerHTML = data.map(c => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="py-3 px-3 font-bold text-white">${c.combo_name}</td>
+                    <td class="py-3 px-3"><div class="flex flex-wrap gap-1">${c.skills.map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono">${s}</span>`).join('')}</div></td>
+                    <td class="py-3 px-3 font-bold text-emerald-400">${formatSalary(c.median_salary)}</td>
+                    <td class="py-3 px-3 text-emerald-400">${formatSalary(c.salary_uplift_usd, '+')}</td>
+                    <td class="py-3 px-3 font-bold text-emerald-400">+${c.pct_uplift}%</td>
+                    <td class="py-3 px-3 text-slate-300">${c.job_count.toLocaleString()}</td>
+                    <td class="py-3 px-3"><span class="bg-purple-950 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${c.market_demand_rating}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Jobs Explorer
+        async function loadJobsFeed() {
+            state.jobSort = document.getElementById('jobSortSelect').value;
+            const query = `role=${encodeURIComponent(state.role)}&seniority=${encodeURIComponent(state.seniority)}&country=${encodeURIComponent(state.country)}&remote=${state.remote}&salary_min=${state.salaryMin}&search=${encodeURIComponent(state.jobSearch)}&page=${state.jobsPage}&limit=10&sort_by=${state.jobSort}`;
+            const res = await fetchAPI(`/api/jobs?${query}`);
+            if (!res || !res.jobs) return;
+            state.rawJobsRes = res;
+            renderJobsFeedData(res);
+        }
+
+        function renderJobsFeedData(res) {
+            if (!res || !res.jobs) return;
+            document.getElementById('jobsPageSummary').innerText = `Page ${res.page} of ${res.total_pages || 1} (${(res.total_count || 0).toLocaleString()} postings matched)`;
+            document.getElementById('prevPageBtn').disabled = res.page <= 1;
+            document.getElementById('nextPageBtn').disabled = res.page >= res.total_pages;
+
+            const tbody = document.getElementById('jobsTableBody');
+            if (res.jobs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400 font-semibold">No job postings match your criteria</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = res.jobs.map(j => `
+                <tr class="hover:bg-slate-800/40 cursor-pointer transition-all" onclick='openJobDrawer(${JSON.stringify(j).replace(/'/g, "&apos;")})'>
+                    <td class="py-3 px-4 font-bold text-white">${j.title || 'Data Professional'}</td>
+                    <td class="py-3 px-4 text-slate-300 font-semibold">${j.company || 'Tech Employer'}</td>
+                    <td class="py-3 px-4 text-slate-400">${j.location || 'Remote / Global'}</td>
+                    <td class="py-3 px-4"><span class="bg-purple-950 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${j.seniority || 'Mid-Entry'}</span></td>
+                    <td class="py-3 px-4 font-mono font-bold text-emerald-400">${formatSalary(j.salary_raw, '', '/yr')}</td>
+                    <td class="py-3 px-4"><div class="flex flex-wrap gap-1">${(j.skills || []).map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded">${s}</span>`).join('')}</div></td>
+                    <td class="py-3 px-4 text-right">
+                        <button class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-2.5 py-1 rounded-lg text-[11px] font-bold">Quick View</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleJobSearch() {
+            state.jobSearch = document.getElementById('jobSearchInput').value;
+            state.jobsPage = 1;
+            loadJobsFeed();
+        }
+
+        function changeJobPage(delta) {
+            state.jobsPage += delta;
+            loadJobsFeed();
+        }
+
+        // Job Drawer Slide-over
+        function openJobDrawer(j) {
+            document.getElementById('drawerTitle').innerText = j.title;
+            document.getElementById('drawerCompany').innerText = j.company;
+            document.getElementById('drawerLocation').innerText = j.location;
+            document.getElementById('drawerSalary').innerText = formatSalary(j.salary_raw, '', '/yr');
+            document.getElementById('drawerSeniority').innerText = j.seniority;
+            document.getElementById('drawerRemote').innerText = j.is_remote ? 'Yes (Work From Home)' : 'On-site / Hybrid';
+            document.getElementById('drawerDegree').innerText = j.no_degree ? 'No Degree Required' : 'Degree Preferred';
+            document.getElementById('drawerInsurance').innerText = j.health_insurance ? 'Offered' : 'Standard Package';
+            document.getElementById('drawerPosted').innerText = j.posted_date;
+            document.getElementById('drawerApplyBtn').href = j.apply_link;
+
+            document.getElementById('drawerSkills').innerHTML = j.skills.map(s => `<span class="bg-blue-950 text-blue-300 border border-blue-800/40 text-xs px-2.5 py-1 rounded-lg font-bold">${s}</span>`).join('');
+
+            document.getElementById('jobDrawerOverlay').classList.remove('hidden');
+            const drawer = document.getElementById('jobDrawer');
+            drawer.classList.remove('drawer-closed');
+            drawer.classList.add('drawer-open');
+        }
+
+        function closeJobDrawer() {
+            document.getElementById('jobDrawerOverlay').classList.add('hidden');
+            const drawer = document.getElementById('jobDrawer');
+            drawer.classList.remove('drawer-open');
+            drawer.classList.add('drawer-closed');
+        }
+
+        // Career Skill Gap Analyzer & Competency Radar Chart
+        async function runGapAnalysis() {
+            const role = document.getElementById('analyzerRoleSelect').value;
+            const checkedSkills = Array.from(document.querySelectorAll('#analyzerSkillCheckboxes input:checked')).map(i => i.value);
+            
+            const res = await fetchAPI(`/api/career/gap-analysis?target_role=${encodeURIComponent(role)}&current_skills=${encodeURIComponent(checkedSkills.join(','))}`);
+            if (!res) return;
+            state.rawGapData = res;
+            renderGapAnalysisData(res);
+            renderCompetencyRadarChart(role, checkedSkills);
+        }
+
+        function renderGapAnalysisData(res) {
+            if (!res) return;
+            document.getElementById('gapScoreText').innerText = `${res.readiness_score}%`;
+            document.getElementById('gapTargetRoleTitle').innerText = res.target_role;
+            
+            const rawBoost = (res.potential_salary_boost_raw || 40400);
+            document.getElementById('gapSalaryBoostText').innerText = formatSalary(rawBoost, '+', '/yr');
+
+            document.getElementById('gapAcquiredContainer').innerHTML = res.acquired_skills.map(s => `
+                <span class="bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-xs px-2.5 py-1 rounded-xl font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-check text-[10px]"></i> ${s.name}
+                </span>
+            `).join('') || '<span class="text-xs text-slate-500">None selected</span>';
+
+            document.getElementById('gapMissingContainer').innerHTML = res.missing_skills.map(s => `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <div>
+                        <b class="text-white text-sm block">${s.name}</b>
+                        <span class="text-slate-400">${s.demand_pct}% Market Demand • ${s.priority}</span>
+                    </div>
+                    <span class="text-emerald-400 font-mono font-extrabold bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-500/30">${formatSalary(s.salary_impact_raw || 12000, '+')}</span>
+                </div>
+            `).join('') || '<div class="text-xs text-emerald-400 font-bold p-3">🎉 All core skills acquired for this role!</div>';
+        }
+
+        function renderCompetencyRadarChart(targetRole, checkedSkills) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if (radarChartInstance) radarChartInstance.destroy();
+
+            const allSkills = ['SQL', 'Python', 'AWS', 'Spark', 'PyTorch', 'Snowflake', 'Airflow', 'Tableau'];
+            const targetBenchmark = {
+                'Data Engineer': [90, 85, 80, 75, 40, 70, 85, 40],
+                'Machine Learning Engineer': [70, 95, 85, 60, 90, 40, 50, 30],
+                'Data Scientist': [80, 95, 60, 50, 80, 50, 40, 60],
+                'Data Analyst': [85, 75, 40, 30, 20, 60, 30, 90]
+            }[targetRole] || [80, 80, 60, 60, 60, 60, 60, 60];
+
+            const userScores = allSkills.map(s => checkedSkills.includes(s) ? 90 : 20);
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: allSkills,
+                    datasets: [
+                        {
+                            label: `${targetRole} Benchmark`,
+                            data: targetBenchmark,
+                            backgroundColor: 'rgba(139, 92, 246, 0.25)',
+                            borderColor: '#8B5CF6',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Your Current Stack',
+                            data: userScores,
+                            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                            borderColor: '#10B981',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#1E294B' },
+                            grid: { color: '#1E294B' },
+                            pointLabels: { color: '#F3F4F6', font: { size: 11, weight: 'bold' } },
+                            ticks: { display: false, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#F3F4F6', font: { family: 'Plus Jakarta Sans' } } }
+                    }
+                }
+            });
+        }
+
+        // Top Employers
+        async function loadEmployers() {
+            const query = `role=${encodeURIComponent(state.role)}&seniority=${encodeURIComponent(state.seniority)}&country=${encodeURIComponent(state.country)}&remote=${state.remote}`;
+            const data = await fetchAPI(`/api/employers/top?${query}`);
+            if (!data) return;
+            state.rawEmployersData = data;
+            renderEmployersData(data);
+            renderEmployersChart(data);
+        }
+
+        function renderEmployersData(data) {
+            if (!data) return;
+            const tbody = document.getElementById('employersTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400 font-semibold">No employer data found for current filters</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(e => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="py-3 px-3 font-bold text-white">${e.company_name || 'Unknown Company'}</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${(e.total_postings || 0).toLocaleString()}</td>
+                    <td class="py-3 px-3 text-right text-amber-400">${(e.salaried_postings_count || 0).toLocaleString()}</td>
+                    <td class="py-3 px-3 text-right font-bold text-emerald-400">${formatSalary(e.avg_salary_usd)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderEmployersChart(data) {
+            const ctx = document.getElementById('employersChart').getContext('2d');
+            if (employersChartInstance) employersChartInstance.destroy();
+
+            const topData = data.slice(0, 10);
+            const labels = topData.map(e => e.company_name);
+            const salaries = topData.map(e => {
+                const curr = CURRENCIES[state.currency] || CURRENCIES.USD;
+                return Math.round((e.avg_salary_usd || 120000) * curr.rate);
+            });
+
+            employersChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Average Salary (${state.currency})`,
+                        data: salaries,
+                        backgroundColor: 'rgba(6, 182, 212, 0.85)',
+                        borderColor: '#06B6D4',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${CURRENCIES[state.currency].symbol}${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#F3F4F6', font: { weight: 'bold' } } },
+                        y: { grid: { color: '#1E294B' }, ticks: { color: '#94A3B8', font: { family: 'JetBrains Mono' } } }
+                    }
+                }
+            });
+        }
+
+        // CURRENCY CONVERTER MODAL CONTROLLER
+        function openCurrencyConverterModal() {
+            const initialVal = (state.rawKpis && state.rawKpis.median_salary) ? state.rawKpis.median_salary : 115000;
+            document.getElementById('converterAmountInput').value = initialVal;
+            updateCurrencyConverterModal();
+            document.getElementById('currencyModalOverlay').classList.remove('hidden');
+            document.getElementById('currencyModal').classList.remove('hidden');
+        }
+
+        function closeCurrencyConverterModal() {
+            document.getElementById('currencyModalOverlay').classList.add('hidden');
+            document.getElementById('currencyModal').classList.add('hidden');
+        }
+
+        function updateCurrencyConverterModal() {
+            let usdAmount = parseFloat(document.getElementById('converterAmountInput').value) || 0;
+            const period = document.getElementById('converterPeriodSelect').value;
+            
+            let multiplier = 1;
+            let periodSuffix = '/yr';
+            if (period === 'month') {
+                multiplier = 1 / 12;
+                periodSuffix = '/mo';
+            } else if (period === 'hour') {
+                multiplier = 1 / 2080;
+                periodSuffix = '/hr';
+            }
+
+            const grid = document.getElementById('currencyCardsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = Object.values(CURRENCIES).map(c => {
+                const val = usdAmount * c.rate * multiplier;
+                const formatted = Math.round(val).toLocaleString();
+                const isActive = c.code === state.currency;
+                return `
+                    <div onclick="setCurrency('${c.code}')" class="cursor-pointer p-3 rounded-xl border transition-all ${isActive ? 'bg-emerald-950/80 border-emerald-500 shadow-lg shadow-emerald-500/20' : 'bg-slate-950 border-slate-800 hover:border-emerald-500/50'}">
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <span class="font-bold text-slate-300 flex items-center gap-1.5"><span class="text-base">${c.flag}</span> ${c.code}</span>
+                            <span class="text-[10px] text-slate-500 font-mono">1 USD = ${c.rate}</span>
+                        </div>
+                        <div class="text-sm font-black font-mono text-white mt-1">${c.symbol}${formatted} <span class="text-[10px] text-emerald-400 font-bold font-sans">${periodSuffix}</span></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // COMMAND PALETTE MODAL (Ctrl + K)
+        function openCommandPalette() {
+            document.getElementById('commandPaletteOverlay').classList.remove('hidden');
+            document.getElementById('commandPaletteModal').classList.remove('hidden');
+            document.getElementById('commandInput').focus();
+        }
+
+        function closeCommandPalette() {
+            document.getElementById('commandPaletteOverlay').classList.add('hidden');
+            document.getElementById('commandPaletteModal').classList.add('hidden');
+        }
+
+        function filterCommandPalette() {
+            const query = document.getElementById('commandInput').value.toLowerCase();
+            const items = document.querySelectorAll('#commandList > div');
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function executeCommand(cmd) {
+            closeCommandPalette();
+            if (['demand', 'roi', 'jobs', 'career', 'employers'].includes(cmd)) {
+                switchTab(cmd);
+            } else if (cmd === 'converter') {
+                openCurrencyConverterModal();
+            } else if (cmd === 'export-pdf') {
+                printExecutiveReport();
+            } else if (cmd === 'share') {
+                copyShareableLink();
+            }
+        }
+
+        // EXPORT FUNCTIONS
+        function exportCurrentViewCSV() {
+            if (state.activeTab === 'jobs') exportJobsCSV();
+            else if (state.activeTab === 'employers') exportEmployersCSV();
+            else if (state.activeTab === 'roi') exportRoiCSV();
+            else exportSkillDemandCSV();
+        }
+
+        function exportSkillDemandCSV() {
+            if (!state.rawKpis) return;
+            const rows = [
+                ['Metric', 'Value'],
+                ['Filtered Job Volume', state.rawKpis.total_postings],
+                ['Median Annual Salary (USD)', state.rawKpis.median_salary],
+                ['Top Skill', state.rawKpis.top_skill],
+                ['Top Combo', state.rawKpis.top_combo]
+            ];
+            downloadCSV(rows, 'skill_demand_analytics.csv');
+        }
+
+        function exportJobsCSV() {
+            if (!state.rawJobsRes || !state.rawJobsRes.jobs) return;
+            const headers = ['Title', 'Company', 'Location', 'Seniority', 'Salary (USD)', 'Skills'];
+            const data = state.rawJobsRes.jobs.map(j => [
+                j.title, j.company, j.location, j.seniority, j.salary_raw || 'Undisclosed', (j.skills || []).join(';')
+            ]);
+            downloadCSV([headers, ...data], 'filtered_jobs_export.csv');
+        }
+
+        function exportEmployersCSV() {
+            if (!state.rawEmployersData) return;
+            const headers = ['Company Name', 'Total Job Postings', 'Salaried Postings', 'Average Salary (USD)'];
+            const data = state.rawEmployersData.map(e => [
+                e.company_name, e.total_postings, e.salaried_postings_count, e.avg_salary_usd
+            ]);
+            downloadCSV([headers, ...data], 'top_employers_export.csv');
+        }
+
+        function exportRoiCSV() {
+            if (!state.rawRoiData) return;
+            const headers = ['Tech Combination', 'Skills', 'Median Salary (USD)', 'Salary Uplift (USD)', 'Uplift %', 'Job Count', 'Demand Rating'];
+            const data = state.rawRoiData.map(c => [
+                c.combo_name, c.skills.join(';'), c.median_salary, c.salary_uplift_usd, c.pct_uplift, c.job_count, c.market_demand_rating
+            ]);
+            downloadCSV([headers, ...data], 'skill_combo_roi_export.csv');
+        }
+
+        function downloadCSV(rows, filename) {
+            const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast(`Exported ${filename} successfully`, 'success');
+        }
+
+        function printExecutiveReport() {
+            showToast('Preparing executive print report...', 'info');
+            setTimeout(() => window.print(), 500);
+        }
+
+        function copyShareableLink() {
+            updateURL();
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showToast('Shareable workspace URL copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('URL updated in browser bar', 'info');
+            });
+        }
+
+        // Global Keyboard Shortcuts (Ctrl + K, Escape)
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                openCommandPalette();
+            } else if (e.key === 'Escape') {
+                closeCommandPalette();
+                closeJobDrawer();
+                closeCurrencyConverterModal();
+            }
+        });
+    </script>
+</body>
+</html>

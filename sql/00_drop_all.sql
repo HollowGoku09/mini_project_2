@@ -1,0 +1,29 @@
+-- =============================================================================
+-- SQL File: 00_drop_all.sql
+-- Purpose: Complete teardown script for the Job Market Analytics schema.
+-- Drops all tables, bridge tables, materialised views, and types safely.
+-- =============================================================================
+
+DROP MATERIALIZED VIEW IF EXISTS mv_top_skills_overall CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_top_skills_by_role_family CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_top_skills_by_category CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_skill_demand_monthly CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_salary_by_role_seniority CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_skill_salary_premium CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_top_hiring_companies CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_remote_work_rates CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_degree_requirement_rates CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_health_insurance_rates CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_pay_transparency CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_platform_comparison CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_senior_entry_skill_delta CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_africa_ghana_market CASCADE;
+
+DROP TABLE IF EXISTS skills_job_dim CASCADE;
+DROP TABLE IF EXISTS job_postings_fact CASCADE;
+DROP TABLE IF EXISTS role_family_dim CASCADE;
+DROP TABLE IF EXISTS schedule_dim CASCADE;
+DROP TABLE IF EXISTS platform_dim CASCADE;
+DROP TABLE IF EXISTS location_dim CASCADE;
+DROP TABLE IF EXISTS skills_dim CASCADE;
+DROP TABLE IF EXISTS company_dim CASCADE;
