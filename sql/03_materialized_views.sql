@@ -1,9 +1,4 @@
--- =============================================================================
--- SQL File: 03_materialized_views.sql
--- Purpose: Pre-aggregated Materialized Views for Power BI and Streamlit Dashboards.
--- Eliminates high-latency row scans across 787k fact rows and 3.67M bridge rows.
--- Includes automated REFRESH script function.
--- =============================================================================
+-- Materialized views for analytical aggregations
 
 -- 1. Top Skills Overall
 CREATE MATERIALIZED VIEW mv_top_skills_overall AS

@@ -1,9 +1,4 @@
-"""
-src/pipeline.py
-===============
-Orchestrator and CLI entry point for the Job Market Analytics ETL pipeline.
-Supports --full, --dimensions-only, and --validate-only flags.
-"""
+"""ETL pipeline execution script."""
 
 import sys
 import time
@@ -43,12 +38,12 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
-logger = logging.getLogger("ETL_Pipeline")
+logger = logging.getLogger(__name__)
 
 def run_dimensions_pipeline(conn) -> dict:
     """Extract, transform, and load all dimension tables."""
     start_time = time.time()
-    logger.info("=== STARTING DIMENSION ETL STAGE ===")
+    logger.info("Starting dimension ETL stage")
     
     dim_tables = [
         'skills_job_dim', 'job_postings_fact', 'company_dim',
@@ -162,12 +157,12 @@ def run_full_pipeline() -> None:
                 logger.info(f"Processed bridge chunk {idx+1}: read {total_bridge_read:,}, loaded {total_bridge_loaded:,}")
 
         bridge_elapsed = time.time() - bridge_start
-        logger.info(f"=== COMPLETED BRIDGE ETL STAGE: Loaded {total_bridge_loaded:,} rows in {bridge_elapsed:.2f}s ===")
+        logger.info(f"Completed bridge ETL stage: Loaded {total_bridge_loaded:,} rows in {bridge_elapsed:.2f}s")
         
     finally:
         conn.close()
         
-    logger.info("=== RUNNING POST-LOAD VALIDATION ===")
+    logger.info("Running post-load validation")
     success = validate_post_load()
     
     total_elapsed = time.time() - total_start

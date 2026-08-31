@@ -1,9 +1,4 @@
-"""
-src/load.py
-===========
-High-performance PostgreSQL loading module using psycopg2 COPY expert.
-Ensures pipeline idempotency via explicit table truncates or upserts.
-"""
+"""Database loading functions."""
 
 import io
 import logging

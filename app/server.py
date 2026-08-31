@@ -1,11 +1,4 @@
-"""
-app/server.py
-=============
-Enterprise-Grade Python HTTP API Server for Tech Job Market Analytics Platform.
-Queries PostgreSQL job_market_db Materialized Views with in-memory caching
-and serves RESTful JSON endpoints and static HTML frontend (index.html).
-Supports offline fallback data engine for 100% availability.
-"""
+"""HTTP API server for the job market analytics platform."""
 
 import os
 import json
@@ -13,14 +6,14 @@ import math
 import logging
 import time
 from urllib.parse import urlparse, parse_qs
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import pandas as pd
 from dotenv import load_dotenv
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("JobMarket_Server")
+logger = logging.getLogger(__name__)
 
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = int(os.getenv("DB_PORT", 5432))
@@ -28,11 +21,10 @@ DB_NAME = os.getenv("DB_NAME", "job_market_db")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "hollowgoku")
 
-# Simple in-memory cache to ensure sub-millisecond API response times
+# In-memory response cache
 CACHE = {}
-CACHE_TTL = 600  # 10 minutes for ultra-fast performance
+CACHE_TTL = 600
 
-# Global Connection Pool Singleton
 DB_POOL = None
 
 def init_db_pool():
@@ -50,7 +42,7 @@ def init_db_pool():
                 password=DB_PASSWORD,
                 connect_timeout=3
             )
-            logger.info("⚡ PostgreSQL ThreadedConnectionPool online (1-10 active connections)")
+            logger.info("PostgreSQL connection pool initialized")
         except Exception as e:
             logger.warning(f"Database connection pool initialization skipped: {e}")
             DB_POOL = None
@@ -147,6 +139,8 @@ class WebBIHandler(BaseHTTPRequestHandler):
         remote = params.get('remote', [None])[0]
         if role == 'All Roles' or role == 'All': role = None
         if seniority == 'All Levels' or seniority == 'All': seniority = None
+        start_time = time.time()
+
         if country == 'All Countries' or country == 'All': country = None
 
         cache_key = f"{path}?role={role}&seniority={seniority}&country={country}&remote={remote}&query={parsed.query}"
@@ -193,19 +187,55 @@ class WebBIHandler(BaseHTTPRequestHandler):
         elif path == "/api/countries":
             data = self.get_countries()
 
+        elif path == "/api/health":
+            data = self.get_health_status()
+
+        elif path == "/api/export":
+            dataset_type = params.get('dataset', ['skills'])[0]
+            data = self.get_export_data(dataset_type)
+
         if data is not None:
             data = clean_json_data(data)
             res_json = json.dumps(data)
             set_cache(cache_key, res_json)
-            self._set_headers()
+            elapsed_ms = round((time.time() - start_time) * 1000, 2)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("X-Response-Time-Ms", str(elapsed_ms))
+            self.end_headers()
             self.wfile.write(res_json.encode('utf-8'))
         else:
             self._set_headers(status=404)
             self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode('utf-8'))
 
-    # -------------------------------------------------------------------------
-    # DATA SERVICE METHODS WITH DB & FALLBACK HYBRID LOGIC
-    # -------------------------------------------------------------------------
+    # Data service methods
+    def get_health_status(self):
+        db_online = False
+        try:
+            conn = get_db_conn()
+            if conn:
+                db_online = True
+                release_db_conn(conn)
+        except Exception:
+            db_online = False
+            
+        return {
+            "status": "healthy",
+            "database_status": "online" if db_online else "offline",
+            "cache_entries": len(CACHE),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "version": "1.0.0"
+        }
+
+    def get_export_data(self, dataset_type="skills"):
+        if dataset_type == "salaries":
+            return self.get_salaries()
+        elif dataset_type == "companies":
+            return self.get_top_employers()
+        elif dataset_type == "market":
+            return self.get_market_conditions()
+        return self.get_skills_matrix(limit=50)
 
     def get_countries(self):
         try:
@@ -574,7 +604,7 @@ class WebBIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.error(f"Jobs feed error: {e}")
 
-        # High-density Fallback sample job items
+        # Fallback sample jobs
         sample_jobs = [
             {"job_id": 101, "title": "Senior Data Engineer - Cloud Infrastructure", "role_category": "Data Engineer", "company": "Amazon", "company_logo": "", "location": "Seattle, WA, US", "country": "United States", "seniority": "Senior", "salary_raw": 165000, "salary_str": "$165,000/yr", "posted_date": "2023-11-04", "is_remote": True, "no_degree": True, "health_insurance": True, "skills": ["Python", "SQL", "AWS", "Spark", "Airflow"], "apply_link": "#"},
             {"job_id": 102, "title": "Lead Machine Learning Scientist - Generative AI", "role_category": "Machine Learning Engineer", "company": "Meta", "company_logo": "", "location": "Menlo Park, CA, US", "country": "United States", "seniority": "Senior", "salary_raw": 188000, "salary_str": "$188,000/yr", "posted_date": "2023-11-02", "is_remote": False, "no_degree": False, "health_insurance": True, "skills": ["Python", "PyTorch", "TensorFlow", "CUDA"], "apply_link": "#"},
@@ -751,7 +781,7 @@ class WebBIHandler(BaseHTTPRequestHandler):
         ]
 
 def prewarm_cache():
-    logger.info("🔥 Pre-warming high-frequency API endpoints into L1 Cache...")
+    logger.info("Pre-warming API cache...")
     try:
         handler = WebBIHandler.__new__(WebBIHandler)
         set_cache("/api/kpis?role=None&seniority=None&country=None&remote=None&query=", json.dumps(clean_json_data(handler.get_kpis())))
@@ -759,7 +789,7 @@ def prewarm_cache():
         set_cache("/api/skills/roi-combo?role=None&seniority=None&country=None&remote=None&query=", json.dumps(clean_json_data(handler.get_roi_combo_matrix())))
         set_cache("/api/employers/top?role=None&seniority=None&country=None&remote=None&query=", json.dumps(clean_json_data(handler.get_top_employers())))
         set_cache("/api/countries?role=None&seniority=None&country=None&remote=None&query=", json.dumps(clean_json_data(handler.get_countries())))
-        logger.info("⚡ L1 Cache pre-warming complete. Sub-millisecond API response ready.")
+        logger.info("Cache pre-warming completed.")
     except Exception as e:
         logger.warning(f"Cache pre-warming warning: {e}")
 
@@ -767,8 +797,8 @@ def run_server(port=8080):
     init_db_pool()
     prewarm_cache()
     server_address = ('', port)
-    httpd = HTTPServer(server_address, WebBIHandler)
-    logger.info(f"🚀 Job Market Dashboard Server online at http://localhost:{port}")
+    httpd = ThreadingHTTPServer(server_address, WebBIHandler)
+    logger.info(f"Server started on http://localhost:{port}")
     httpd.serve_forever()
 
 if __name__ == '__main__':

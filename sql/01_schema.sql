@@ -1,8 +1,4 @@
--- =============================================================================
--- SQL File: 01_schema.sql
--- Purpose: Normalised 8-table PostgreSQL schema definition for Job Market Analytics.
--- Author: Senior Data Engineer & Analytics Engineer
--- =============================================================================
+-- Schema definition for job market analytics warehouse
 
 -- 1. Company Dimension
 CREATE TABLE company_dim (

@@ -33,12 +33,14 @@ def render_salary_disclaimer(sample_count: int, pct_coverage: float = 4.2):
         unsafe_allow_html=True
     )
 
+TABLEAU_10 = ["#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD", "#8C564B", "#E377C2", "#7F7F7F", "#BCBD22", "#17BECF"]
+
 def plot_bar_chart(df, x_col, y_col, title, color_col=None, hover_data=None):
     """Generate dark-themed Plotly bar chart."""
     fig = px.bar(
         df, x=x_col, y=y_col, color=color_col,
         title=title, hover_data=hover_data,
-        color_discrete_sequence=px.colors.qualitative.Bold
+        color_discrete_sequence=TABLEAU_10
     )
     fig.update_layout(
         template="plotly_dark",

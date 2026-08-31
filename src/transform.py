@@ -1,9 +1,4 @@
-"""
-src/transform.py
-================
-Data cleaning, dimension building, skill canonicalisation, role family mapping,
-and quality validation rules for Job Market Analytics pipeline.
-"""
+"""Data transformation and normalization functions."""
 
 import logging
 from typing import Tuple, Dict, Set

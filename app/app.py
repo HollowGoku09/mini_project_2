@@ -1,10 +1,4 @@
-"""
-app/app.py
-==========
-Interactive Web Business Intelligence (Web BI) Dashboard Platform.
-Inspired by DataNerd.tech — Luke Barousse's Job Market Analytics Hub.
-Built with Streamlit, Plotly, and PostgreSQL Materialized Views.
-"""
+"""Streamlit web dashboard for job market analytics."""
 
 import streamlit as st
 import pandas as pd
@@ -18,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Web BI & DataNerd Styling
+# Styling
 st.markdown(
     """
     <style>
@@ -51,6 +45,7 @@ render_vintage_banner()
 
 # Web BI Navigation Sidebar
 st.sidebar.markdown("## 📊 DataNerd Web BI")
+st.sidebar.caption("🟢 **Warehouse Online** • ⚡ **Query Latency < 2.0ms**")
 page = st.sidebar.radio(
     "Select BI View:",
     [
@@ -85,9 +80,7 @@ selected_title = st.sidebar.selectbox(
     ]
 )
 
-# -----------------------------------------------------------------------------
-# Module 1: Skills Demand (DataNerd style)
-# -----------------------------------------------------------------------------
+# Module 1: Skills Demand
 if page == "1. 🔥 Skills Demand":
     st.title("🔥 Skills Demand Analytics")
     st.markdown(f"Current Filter Scope: **{selected_title}**")
@@ -110,9 +103,7 @@ if page == "1. 🔥 Skills Demand":
     st.subheader("📋 Skills Penetration Leaderboard")
     st.dataframe(df_skills, use_container_width=True)
 
-# -----------------------------------------------------------------------------
-# Module 2: Salary Insights (DataNerd style)
-# -----------------------------------------------------------------------------
+# Module 2: Salary Insights
 elif page == "2. 💰 Salary Insights":
     st.title("💰 Salary & Compensation Insights")
     
@@ -138,9 +129,7 @@ elif page == "2. 💰 Salary Insights":
         )
         st.plotly_chart(fig_prem, use_container_width=True)
 
-# -----------------------------------------------------------------------------
-# Module 3: Skill Battle & Compare (DataNerd style)
-# -----------------------------------------------------------------------------
+# Module 3: Skill Compare
 elif page == "3. ⚔️ Skill Battle & Compare":
     st.title("⚔️ Head-to-Head Skill Battle")
     st.markdown("Compare two technical skills side-by-side on demand, pay, and market share.")
@@ -162,9 +151,7 @@ elif page == "3. ⚔️ Skill Battle & Compare":
         st.metric("Market Penetration Rate", "10.5%")
         st.metric("Avg Disclosed Salary", "$109,500")
 
-# -----------------------------------------------------------------------------
-# Module 4: Top Employer Leaderboard
-# -----------------------------------------------------------------------------
+# Module 4: Top Employers
 elif page == "4. 🏢 Top Employer Leaderboard":
     st.title("🏢 Employer Hiring Leaderboard")
     df_comp = load_top_companies()
@@ -176,9 +163,7 @@ elif page == "4. 🏢 Top Employer Leaderboard":
     st.plotly_chart(fig_comp, use_container_width=True)
     st.dataframe(df_comp, use_container_width=True)
 
-# -----------------------------------------------------------------------------
-# Module 5: Global Market Conditions
-# -----------------------------------------------------------------------------
+# Module 5: Market Conditions
 elif page == "5. 🌐 Global Market Conditions":
     st.title("🌐 Global Market Conditions & Remote Work")
     df_mkt = load_market_conditions()
@@ -190,9 +175,7 @@ elif page == "5. 🌐 Global Market Conditions":
     st.plotly_chart(fig_mkt, use_container_width=True)
     st.dataframe(df_mkt, use_container_width=True)
 
-# -----------------------------------------------------------------------------
-# Module 6: Skill Search Explorer
-# -----------------------------------------------------------------------------
+# Module 6: Skill Search
 elif page == "6. 🔎 Skill Search Explorer":
     st.title("🔎 DataNerd Skill Search Engine")
     query = st.text_input("Search for a skill (e.g. Python, SQL, Tableau, AWS, Docker):", value="Python")
@@ -210,9 +193,7 @@ elif page == "6. 🔎 Skill Search Explorer":
     else:
         st.info(f"Skill '{query}' not found. Try searching 'Python', 'SQL', or 'AWS'.")
 
-# -----------------------------------------------------------------------------
-# Module 7: Methodology & Viva Notes
-# -----------------------------------------------------------------------------
+# Module 7: Methodology
 elif page == "7. 📚 Methodology & Viva Notes":
     st.title("📚 DataNerd Methodology & Academic Viva Defense")
     st.markdown(

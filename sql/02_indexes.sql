@@ -1,8 +1,4 @@
--- =============================================================================
--- SQL File: 02_indexes.sql
--- Purpose: B-tree indexes for foreign keys, filter predicates, and join keys.
--- Optimized for analytical queries and materialized view builds.
--- =============================================================================
+-- Indexes for foreign keys, filter predicates, and join keys
 
 -- Foreign Key Indexes on job_postings_fact
 CREATE INDEX IF NOT EXISTS idx_job_postings_company_id ON job_postings_fact(company_id);

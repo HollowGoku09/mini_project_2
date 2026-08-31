@@ -62,13 +62,13 @@
         }
 
         body {
-            background-color: #070A12;
-            color: #F3F4F6;
+            background-color: #0F172A;
+            color: #F8FAFC;
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
         }
 
-        /* Ambient Gradient Mesh Background */
+        /* Subtle Matte Background */
         .ambient-mesh {
             position: fixed;
             top: 0;
@@ -78,40 +78,35 @@
             pointer-events: none;
             z-index: -1;
             background: 
-                radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.10) 0%, transparent 40%),
-                radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 85%, rgba(6, 182, 212, 0.06) 0%, transparent 45%);
+                radial-gradient(circle at 15% 15%, rgba(31, 119, 180, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(255, 127, 14, 0.05) 0%, transparent 40%);
         }
 
-        /* Glassmorphism 2.0 Cards */
+        /* Professional Enterprise BI Cards */
         .glass-card {
-            background: rgba(14, 20, 36, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 1.1rem;
-            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 0.85rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
         }
 
         .glass-card:hover {
-            border-color: rgba(59, 130, 246, 0.35);
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(59, 130, 246, 0.15);
+            border-color: #475569;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
         /* Interactive Role Chips */
         .role-chip {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s ease;
         }
 
         .role-chip.active {
-            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            background: #1F77B4;
             color: #FFFFFF;
             font-weight: 700;
-            border-color: #60A5FA;
-            box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.45);
-            transform: translateY(-1px);
+            border-color: #4A9EE0;
+            box-shadow: 0 2px 8px rgba(31, 119, 180, 0.35);
         }
 
         /* Navigation Tab Buttons */
@@ -121,30 +116,29 @@
         }
 
         .tab-btn.active {
-            color: #60A5FA;
+            color: #4A9EE0;
             font-weight: 700;
-            background: rgba(59, 130, 246, 0.10);
-            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(31, 119, 180, 0.12);
+            border-color: #1F77B4;
         }
 
         .tab-btn.active::after {
             content: '';
             position: absolute;
             bottom: 0;
-            left: 15%;
-            width: 70%;
+            left: 10%;
+            width: 80%;
             height: 3px;
-            background: linear-gradient(90deg, #3B82F6, #60A5FA);
+            background: #1F77B4;
             border-radius: 999px;
-            box-shadow: 0 0 10px #3B82F6;
         }
 
-        /* Badge Styles */
-        .badge-prog { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .badge-cloud { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-tools { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
-        .badge-db { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-lib { background: rgba(236, 72, 153, 0.15); color: #F472B6; border: 1px solid rgba(236, 72, 153, 0.3); }
+        /* Tableau 10 Categorical Badge Styles */
+        .badge-prog { background: rgba(31, 119, 180, 0.15); color: #4A9EE0; border: 1px solid rgba(31, 119, 180, 0.4); }
+        .badge-cloud { background: rgba(255, 127, 14, 0.15); color: #FFA34D; border: 1px solid rgba(255, 127, 14, 0.4); }
+        .badge-tools { background: rgba(44, 160, 44, 0.15); color: #5CD65C; border: 1px solid rgba(44, 160, 44, 0.4); }
+        .badge-db { background: rgba(148, 103, 189, 0.15); color: #BFA0E6; border: 1px solid rgba(148, 103, 189, 0.4); }
+        .badge-lib { background: rgba(23, 190, 207, 0.15); color: #4ED2DF; border: 1px solid rgba(23, 190, 207, 0.4); }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
@@ -203,7 +197,6 @@
             <div>
                 <div class="flex items-center space-x-2.5">
                     <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Job Market <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Analytics BI</span></h1>
-                    <span class="bg-blue-500/10 text-blue-400 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border border-blue-500/30 uppercase tracking-widest">Enterprise v2.5</span>
                 </div>
                 <p class="text-slate-400 text-xs md:text-sm">767,235 Job Postings Analyzed • Ultra-Fast Materialized View Engine</p>
             </div>
@@ -220,17 +213,26 @@
                 </div>
             </div>
 
-            <!-- API Response Latency Counter -->
-            <div class="hidden sm:flex bg-blue-950/40 border border-blue-500/30 rounded-xl px-3 py-1.5 text-right items-center space-x-2">
-                <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
-                <div>
-                    <span class="text-blue-400 text-[10px] uppercase font-mono font-bold tracking-wider block">Query Latency</span>
-                    <span id="headerQueryLatency" class="text-slate-200 text-xs font-mono font-bold">&lt; 2.5ms</span>
+            <!-- Interactive Live Query Latency Button -->
+            <button onclick="checkLiveQueryLatency()" id="queryLatencyButton" title="Click to ping live PostgreSQL backend & measure roundtrip query latency" class="flex bg-blue-950/60 hover:bg-blue-900/80 border border-blue-500/40 hover:border-blue-400 rounded-xl px-3 py-1.5 text-right items-center space-x-2 transition-all cursor-pointer shadow-lg shadow-blue-500/10 group">
+                <div class="relative flex items-center justify-center">
+                    <span id="latencyPingDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 </div>
-            </div>
+                <div>
+                    <span class="text-blue-400 text-[10px] uppercase font-mono font-bold tracking-wider block group-hover:text-blue-300">Query Latency</span>
+                    <span id="headerQueryLatency" class="text-slate-200 text-xs font-mono font-bold group-hover:text-white">&lt; 2.5ms</span>
+                </div>
+                <i class="fa-solid fa-bolt text-amber-400 text-xs ml-1 group-hover:scale-110 transition-transform"></i>
+            </button>
 
             <!-- Quick Toolbar Buttons -->
             <div class="flex items-center space-x-1.5 ml-auto lg:ml-0">
+                <!-- Interactive Tour Button -->
+                <button onclick="startOnboardingTour()" title="Interactive Onboarding Tour & Feature Guide" class="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all shadow-lg shadow-blue-500/10">
+                    <i class="fa-solid fa-compass text-blue-400"></i>
+                    <span class="hidden sm:inline">Tour</span>
+                </button>
+
                 <!-- Command Palette Shortcut Button -->
                 <button onclick="openCommandPalette()" title="Command Palette (Ctrl + K)" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all">
                     <i class="fa-solid fa-terminal text-blue-400"></i>
@@ -359,27 +361,25 @@
     <!-- EXECUTIVE OVERVIEW KPI STRIP -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-4 mb-6">
         <!-- KPI 1: Open Positions -->
-        <div class="glass-card p-4 relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
-            <div class="flex justify-between items-start relative">
+        <div class="glass-card p-4">
+            <div class="flex justify-between items-start">
                 <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Filtered Job Volume</span>
-                <span class="bg-blue-500/15 text-blue-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-briefcase"></i></span>
+                <span class="bg-[#1F77B4]/15 text-[#4A9EE0] p-2 rounded-xl text-xs"><i class="fa-solid fa-briefcase"></i></span>
             </div>
             <h3 id="kpiTotalJobs" class="text-2xl md:text-3xl font-black font-mono text-white mt-1">766,167</h3>
             <div class="mt-2 flex items-center space-x-2 text-xs">
-                <span id="kpiJobShare" class="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">100% of Market</span>
+                <span id="kpiJobShare" class="text-[#5CD65C] font-bold bg-[#2CA02C]/15 px-2 py-0.5 rounded border border-[#2CA02C]/30">100% of Market</span>
                 <span class="text-slate-400 text-[11px]">• 140k Employers</span>
             </div>
         </div>
 
         <!-- KPI 2: Global Median Salary -->
-        <div class="glass-card p-4 relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-            <div class="flex justify-between items-start relative">
+        <div class="glass-card p-4">
+            <div class="flex justify-between items-start">
                 <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Median Annual Salary</span>
-                <span class="bg-emerald-500/15 text-emerald-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-dollar-sign"></i></span>
+                <span class="bg-[#2CA02C]/15 text-[#5CD65C] p-2 rounded-xl text-xs"><i class="fa-solid fa-dollar-sign"></i></span>
             </div>
-            <h3 id="kpiMedianSalary" class="text-2xl md:text-3xl font-black font-mono text-emerald-400 mt-1">$115,000</h3>
+            <h3 id="kpiMedianSalary" class="text-2xl md:text-3xl font-black font-mono text-[#5CD65C] mt-1">$115,000</h3>
             <div class="mt-2 text-xs text-slate-400 flex justify-between font-mono">
                 <span>25th%: <b id="kpiP25Salary" class="text-slate-300">$85,000</b></span>
                 <span>75th%: <b id="kpiP75Salary" class="text-slate-300">$148,000</b></span>
@@ -387,27 +387,25 @@
         </div>
 
         <!-- KPI 3: #1 Requested Technology -->
-        <div class="glass-card p-4 relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
-            <div class="flex justify-between items-start relative">
+        <div class="glass-card p-4">
+            <div class="flex justify-between items-start">
                 <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">#1 Tech Requirement</span>
-                <span class="bg-purple-500/15 text-purple-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-fire"></i></span>
+                <span class="bg-[#FF7F0E]/15 text-[#FFA34D] p-2 rounded-xl text-xs"><i class="fa-solid fa-fire"></i></span>
             </div>
-            <h3 id="kpiTopSkill" class="text-2xl md:text-3xl font-black text-purple-400 mt-1">Python</h3>
+            <h3 id="kpiTopSkill" class="text-2xl md:text-3xl font-black text-[#FFA34D] mt-1">Python</h3>
             <div class="mt-2 text-xs text-slate-400">
-                <span>Penetration Rate: <b id="kpiTopSkillPct" class="text-purple-300 font-mono">31.1%</b> of postings</span>
+                <span>Penetration Rate: <b id="kpiTopSkillPct" class="text-slate-200 font-mono">31.1%</b> of postings</span>
             </div>
         </div>
 
         <!-- KPI 4: Highest-Paying Stack Combo -->
-        <div class="glass-card p-4 relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-            <div class="flex justify-between items-start relative">
+        <div class="glass-card p-4">
+            <div class="flex justify-between items-start">
                 <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Top Tech Combo ROI</span>
-                <span class="bg-amber-500/15 text-amber-400 p-2 rounded-xl text-xs"><i class="fa-solid fa-layer-group"></i></span>
+                <span class="bg-[#9467BD]/15 text-[#BFA0E6] p-2 rounded-xl text-xs"><i class="fa-solid fa-layer-group"></i></span>
             </div>
-            <h3 id="kpiTopCombo" class="text-base md:text-lg font-bold text-amber-300 mt-1 truncate">Python + AWS + PyTorch</h3>
-            <div class="mt-2 text-xs text-emerald-400 font-mono font-bold flex items-center gap-1">
+            <h3 id="kpiTopCombo" class="text-base md:text-lg font-bold text-[#BFA0E6] mt-1 truncate">Python + AWS + PyTorch</h3>
+            <div class="mt-2 text-xs text-[#5CD65C] font-mono font-bold flex items-center gap-1">
                 <i class="fa-solid fa-arrow-trend-up"></i>
                 <span id="kpiComboUplift">+$34,200/yr Salary Boost</span>
             </div>
@@ -1145,13 +1143,38 @@
                 const data = await res.json();
                 const latency = (performance.now() - t0).toFixed(1);
                 const latencyEl = document.getElementById('headerQueryLatency');
+                const pingDot = document.getElementById('latencyPingDot');
                 if (latencyEl) {
                     latencyEl.innerText = `${latency}ms`;
+                }
+                if (pingDot) {
+                    pingDot.className = latency < 20 ? 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
                 }
                 return data;
             } catch (err) {
                 console.error("API error:", err);
                 return null;
+            }
+        }
+
+        async function checkLiveQueryLatency() {
+            const t0 = performance.now();
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                const latency = (performance.now() - t0).toFixed(1);
+                const latencyEl = document.getElementById('headerQueryLatency');
+                const pingDot = document.getElementById('latencyPingDot');
+                if (latencyEl) latencyEl.innerText = `${latency}ms`;
+                if (pingDot) {
+                    pingDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+                    setTimeout(() => {
+                        if (pingDot) pingDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                    }, 600);
+                }
+                showToast(`⚡ Live API Query Latency: ${latency}ms | DB: ${data.database_status} | Cache Entries: ${data.cache_entries}`, 'success');
+            } catch (err) {
+                showToast('API Latency Ping: Server unreachable', 'info');
             }
         }
 
@@ -1208,7 +1231,7 @@
             refreshDashboard();
         }
 
-        // Render Chart.js Horizontal Bar Chart
+        // Render Chart.js Horizontal Bar Chart (Tableau Blue #1F77B4)
         function renderDemandChart(skills) {
             const ctx = document.getElementById('demandChart').getContext('2d');
             if (demandChartInstance) demandChartInstance.destroy();
@@ -1223,11 +1246,11 @@
                     datasets: [{
                         label: state.chartMetric === '%' ? 'Percentage of Postings (%)' : 'Job Count',
                         data: dataVals,
-                        backgroundColor: 'rgba(59, 130, 246, 0.85)',
-                        borderColor: '#3B82F6',
+                        backgroundColor: '#1F77B4',
+                        borderColor: '#4A9EE0',
                         borderWidth: 1,
-                        borderRadius: 6,
-                        hoverBackgroundColor: '#60A5FA'
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#4A9EE0'
                     }]
                 },
                 options: {
@@ -1243,14 +1266,14 @@
                         }
                     },
                     scales: {
-                        x: { grid: { color: '#1E294B' }, ticks: { color: '#94A3B8', font: { family: 'JetBrains Mono' } } },
-                        y: { grid: { display: false }, ticks: { color: '#F3F4F6', font: { weight: 'bold' } } }
+                        x: { grid: { color: '#334155' }, ticks: { color: '#94A3B8', font: { family: 'JetBrains Mono' } } },
+                        y: { grid: { display: false }, ticks: { color: '#F8FAFC', font: { weight: 'bold' } } }
                     }
                 }
             });
         }
 
-        // Render Skill Category Doughnut Chart
+        // Render Skill Category Doughnut Chart (Tableau 10 Categorical Colors)
         function renderCategoryChart(skills) {
             const ctx = document.getElementById('categoryChart').getContext('2d');
             if (categoryChartInstance) categoryChartInstance.destroy();
@@ -1263,7 +1286,7 @@
 
             const labels = Object.keys(categories);
             const dataVals = Object.values(categories);
-            const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4'];
+            const colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD', '#17BECF'];
 
             categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
@@ -1273,7 +1296,7 @@
                         data: dataVals,
                         backgroundColor: colors.slice(0, labels.length),
                         borderWidth: 2,
-                        borderColor: '#0E1424'
+                        borderColor: '#1E293B'
                     }]
                 },
                 options: {
@@ -1562,15 +1585,15 @@
                         {
                             label: `${targetRole} Benchmark`,
                             data: targetBenchmark,
-                            backgroundColor: 'rgba(139, 92, 246, 0.25)',
-                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(31, 119, 180, 0.25)',
+                            borderColor: '#1F77B4',
                             borderWidth: 2
                         },
                         {
                             label: 'Your Current Stack',
                             data: userScores,
-                            backgroundColor: 'rgba(16, 185, 129, 0.25)',
-                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(44, 160, 44, 0.25)',
+                            borderColor: '#2CA02C',
                             borderWidth: 2
                         }
                     ]
@@ -1580,9 +1603,9 @@
                     maintainAspectRatio: false,
                     scales: {
                         r: {
-                            angleLines: { color: '#1E294B' },
-                            grid: { color: '#1E294B' },
-                            pointLabels: { color: '#F3F4F6', font: { size: 11, weight: 'bold' } },
+                            angleLines: { color: '#334155' },
+                            grid: { color: '#334155' },
+                            pointLabels: { color: '#F8FAFC', font: { size: 11, weight: 'bold' } },
                             ticks: { display: false, max: 100 }
                         }
                     },
@@ -1638,10 +1661,10 @@
                     datasets: [{
                         label: `Average Salary (${state.currency})`,
                         data: salaries,
-                        backgroundColor: 'rgba(6, 182, 212, 0.85)',
-                        borderColor: '#06B6D4',
+                        backgroundColor: '#17BECF',
+                        borderColor: '#4ED2DF',
                         borderWidth: 1,
-                        borderRadius: 6
+                        borderRadius: 4
                     }]
                 },
                 options: {
@@ -1817,6 +1840,151 @@
             });
         }
 
+        // ONBOARDING TOUR LOGIC
+        const onboardingSteps = [
+            {
+                title: "Welcome to Tech Job Market Analytics",
+                subtitle: "Step 1 of 4 • Platform Overview",
+                content: `
+                    <div class="space-y-3">
+                        <div class="p-3.5 bg-blue-950/40 border border-blue-500/30 rounded-xl flex items-center gap-3">
+                            <i class="fa-solid fa-database text-blue-400 text-2xl"></i>
+                            <div>
+                                <div class="font-bold text-white text-sm">767,000+ Job Postings Analyzed</div>
+                                <div class="text-xs text-slate-400">Powered by PostgreSQL Materialized Views & sub-millisecond query engine.</div>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed">This analytics platform provides quantitative insights into technical skill demand, compensation benchmarks, employer hiring patterns, and remote work conditions for tech professionals.</p>
+                    </div>
+                `
+            },
+            {
+                title: "Interactive Filters & Role Slicers",
+                subtitle: "Step 2 of 4 • Dynamic Workspace Filtering",
+                content: `
+                    <div class="space-y-3">
+                        <p class="text-xs text-slate-300">Customise your view using the sticky top filter bar:</p>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex items-start gap-2.5">
+                                <i class="fa-solid fa-filter text-blue-400 mt-0.5"></i>
+                                <div><b class="text-white">Role Slicers:</b> Instantly filter by Data Engineer, Data Scientist, ML Engineer, Data Analyst, Software Engineer, Cloud Engineer, etc.</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex items-start gap-2.5">
+                                <i class="fa-solid fa-layer-group text-indigo-400 mt-0.5"></i>
+                                <div><b class="text-white">Seniority & Country:</b> Filter postings by Senior vs Mid-Entry levels and specific geographic markets.</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "5 Core Analytics Modules",
+                subtitle: "Step 3 of 4 • Dashboard Navigation",
+                content: `
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800"><span class="text-amber-400 font-bold">🔥 Skills Demand:</span> Ranked penetration leaderboard & top tech skills distribution.</div>
+                        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800"><span class="text-purple-400 font-bold">⚡ Skill Combo ROI:</span> Real-time salary uplift calculator for multi-skill tech stacks.</div>
+                        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800"><span class="text-cyan-400 font-bold">📋 Job Explorer Grid:</span> Paginated search feed of individual hiring opportunities.</div>
+                        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800"><span class="text-rose-400 font-bold">🎯 Career Skill Gap Planner:</span> Personalised skill gap analysis & salary growth calculator.</div>
+                        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800"><span class="text-emerald-400 font-bold">🏢 Top Employers:</span> Leaderboard of top tech hiring companies & average compensation.</div>
+                    </div>
+                `
+            },
+            {
+                title: "Power Tools & Data Export",
+                subtitle: "Step 4 of 4 • Advanced Productivity",
+                content: `
+                    <div class="space-y-3 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                                <div class="font-bold text-white"><i class="fa-solid fa-terminal text-blue-400"></i> Command Palette</div>
+                                <div class="text-slate-400 text-[11px] mt-0.5">Press <kbd class="bg-slate-800 text-slate-300 px-1 rounded">Ctrl+K</kbd> to jump anywhere instantly.</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                                <div class="font-bold text-white"><i class="fa-solid fa-download text-emerald-400"></i> CSV & PDF Export</div>
+                                <div class="text-slate-400 text-[11px] mt-0.5">One-click export for datasets or printable executive PDF reports.</div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-emerald-300 font-semibold text-center">
+                            🚀 You are all set! Click 'Got It!' to start exploring.
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        let currentOnboardingStep = 0;
+
+        function startOnboardingTour() {
+            currentOnboardingStep = 0;
+            renderOnboardingStep();
+            document.getElementById('onboardingOverlay').classList.remove('hidden');
+            document.getElementById('onboardingModal').classList.remove('hidden');
+        }
+
+        function closeOnboardingTour() {
+            document.getElementById('onboardingOverlay').classList.add('hidden');
+            document.getElementById('onboardingModal').classList.add('hidden');
+            localStorage.setItem('hasSeenOnboarding', 'true');
+        }
+
+        function renderOnboardingStep() {
+            const step = onboardingSteps[currentOnboardingStep];
+            document.getElementById('onboardingStepTitle').innerText = step.title;
+            document.getElementById('onboardingStepSubtitle').innerText = step.subtitle;
+            document.getElementById('onboardingStepContent').innerHTML = step.content;
+
+            const dotsContainer = document.getElementById('onboardingDots');
+            dotsContainer.innerHTML = onboardingSteps.map((_, idx) => `
+                <span class="h-2 rounded-full transition-all ${idx === currentOnboardingStep ? 'bg-blue-500 w-6' : 'bg-slate-700 w-2'}"></span>
+            `).join('');
+
+            const prevBtn = document.getElementById('onboardingPrevBtn');
+            const nextBtn = document.getElementById('onboardingNextBtn');
+            
+            if (currentOnboardingStep === 0) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (currentOnboardingStep === onboardingSteps.length - 1) {
+                nextBtn.innerHTML = 'Got It! <i class="fa-solid fa-check ml-1"></i>';
+            } else {
+                nextBtn.innerHTML = 'Next Step <i class="fa-solid fa-arrow-right ml-1"></i>';
+            }
+        }
+
+        function nextOnboardingStep() {
+            if (currentOnboardingStep < onboardingSteps.length - 1) {
+                currentOnboardingStep++;
+                renderOnboardingStep();
+            } else {
+                closeOnboardingTour();
+            }
+        }
+
+        function prevOnboardingStep() {
+            if (currentOnboardingStep > 0) {
+                currentOnboardingStep--;
+                renderOnboardingStep();
+            }
+        }
+
+        // Auto show onboarding tour on first visit & sync direct deep-links
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTab = urlParams.get('tab');
+
+            if (initialTab && ['demand', 'roi', 'jobs', 'career', 'employers'].includes(initialTab)) {
+                switchTab(initialTab);
+            }
+
+            if (!localStorage.getItem('hasSeenOnboarding')) {
+                setTimeout(startOnboardingTour, 800);
+            }
+        });
+
         // Global Keyboard Shortcuts (Ctrl + K, Escape)
         window.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -1826,8 +1994,47 @@
                 closeCommandPalette();
                 closeJobDrawer();
                 closeCurrencyConverterModal();
+                closeOnboardingTour();
             }
         });
     </script>
+
+    <!-- ONBOARDING TOUR MODAL -->
+    <div id="onboardingOverlay" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 transition-opacity duration-300"></div>
+    <div id="onboardingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="glass-card bg-slate-900/95 border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative overflow-hidden text-white">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="p-2 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-400 font-bold text-sm">
+                        <i class="fa-solid fa-compass"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-black tracking-tight text-white" id="onboardingStepTitle">Welcome</h3>
+                        <p class="text-[11px] text-slate-400 font-mono" id="onboardingStepSubtitle">Step 1 of 4</p>
+                    </div>
+                </div>
+                <button onclick="closeOnboardingTour()" class="text-slate-400 hover:text-white text-sm p-1.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="py-2" id="onboardingStepContent"></div>
+
+            <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                <div class="flex items-center space-x-1.5" id="onboardingDots"></div>
+                
+                <div class="flex space-x-2">
+                    <button id="onboardingPrevBtn" onclick="prevOnboardingStep()" class="px-3.5 py-1.5 rounded-xl border border-slate-700 text-slate-300 hover:text-white text-xs font-semibold hidden">
+                        Previous
+                    </button>
+                    <button id="onboardingNextBtn" onclick="nextOnboardingStep()" class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 transition">
+                        Next Step <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

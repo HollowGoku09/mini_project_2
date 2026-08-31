@@ -1,9 +1,4 @@
-"""
-src/config.py
-=============
-Central configuration module for paths, database credentials, feature flags,
-and business rules (canonical skill mappings & role family assignments).
-"""
+"""Configuration settings and mapping rules."""
 
 import os
 from pathlib import Path
@@ -42,13 +37,24 @@ CANONICAL_SKILL_MAP = {
     "nosql": "no-sql",
     "asp.netcore": "asp.net core",
     "angular.js": "angular",
+    "angularjs": "angular",
     "vue.js": "vue",
+    "vuejs": "vue",
     "react.js": "react",
+    "reactjs": "react",
     "node.js": "node",
+    "nodejs": "node",
     "rubyon rails": "ruby on rails",
     "golang": "go",
     "huggingface": "hugging face",
-    "visualbasic": "visual basic"
+    "visualbasic": "visual basic",
+    "scikitlearn": "scikit-learn",
+    "scikit learn": "scikit-learn",
+    "pyspark": "spark",
+    "postgres": "postgresql",
+    "k8s": "kubernetes",
+    "tf": "tensorflow",
+    "gcp": "google cloud platform"
 }
 
 # Multi-type skill resolutions (skills appearing under multiple type categories)

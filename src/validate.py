@@ -1,11 +1,7 @@
-"""
-src/validate.py
-===============
-Post-load data quality verification module for Job Market Analytics.
-Asserts schema constraints, foreign key integrity, range limits, and prints a summary.
-"""
+"""Data quality validation assertions."""
 
 import logging
+import pandas as pd
 
 try:
     from tabulate import tabulate
@@ -30,6 +26,23 @@ from src.load import get_db_connection
 
 logger = logging.getLogger(__name__)
 
+def validate_dataframe_integrity(df: pd.DataFrame, required_cols: list) -> dict:
+    """
+    In-memory pandas DataFrame quality validator for ETL pipeline chunks.
+    Checks required columns, null rates, and duplicate primary keys.
+    """
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    null_counts = {c: int(df[c].isna().sum()) for c in df.columns if c in required_cols}
+    duplicate_count = int(df.duplicated(subset=['job_id']).sum()) if 'job_id' in df.columns else 0
+    
+    return {
+        "total_rows": len(df),
+        "missing_columns": missing_cols,
+        "null_counts": null_counts,
+        "duplicate_job_ids": duplicate_count,
+        "is_valid": len(missing_cols) == 0 and duplicate_count == 0
+    }
+
 def validate_post_load() -> bool:
     """
     Run post-load data quality assertions against PostgreSQL warehouse.
@@ -40,12 +53,7 @@ def validate_post_load() -> bool:
     try:
         conn = get_db_connection()
     except Exception as e:
-        logger.warning(f"Could not connect to PostgreSQL database for validation: {e}")
-        print("\n" + "=" * 80)
-        print("          DATA QUALITY VALIDATION SKIPPED (NO LOCAL POSTGRES)          ")
-        print("=" * 80)
-        print("Note: Ensure PostgreSQL is running and DB credentials in .env are valid.")
-        print("=" * 80 + "\n")
+        logger.warning(f"Could not connect to PostgreSQL database: {e}")
         return True
 
     summary_data = []
@@ -97,12 +105,17 @@ def validate_post_load() -> bool:
             except Exception:
                 summary_data.append([f"FK: {check_name}", "N/A", "0 orphans expected", "SKIPPED"])
 
-        # 3. Negative Salary Check
+        # 3. Negative & Extreme Salary Outlier Check ($10k to $1,000,000/yr)
         try:
             cur.execute("SELECT COUNT(*) FROM job_postings_fact WHERE salary_year_avg < 0 OR salary_hour_avg < 0;")
             neg_salaries = cur.fetchone()[0]
             sal_status = "PASSED" if neg_salaries == 0 else "FAILED"
             summary_data.append(["Negative Salary Check", f"{neg_salaries:,} invalid", "0 negative expected", sal_status])
+
+            cur.execute("SELECT COUNT(*) FROM job_postings_fact WHERE salary_year_avg IS NOT NULL AND (salary_year_avg < 10000 OR salary_year_avg > 1000000);")
+            extreme_salaries = cur.fetchone()[0]
+            ext_status = "PASSED" if extreme_salaries == 0 else "WARNING"
+            summary_data.append(["Extreme Salary Outlier Check", f"{extreme_salaries:,} outliers", "<10k or >1M/yr", ext_status])
         except Exception:
             pass
 

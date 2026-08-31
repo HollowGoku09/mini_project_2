@@ -151,13 +151,26 @@ psql -U postgres -d job_market_db -f sql/03_materialized_views.sql
 
 ### 3. Run Unit Tests
 ```bash
-pytest tests/
+python -m unittest discover tests
 ```
 
-### 4. Launch Streamlit Web Dashboard
+### 4. Launch Application Servers
 ```bash
+# Enterprise HTTP API Server & Web BI Dashboard (Port 8000)
+python app/server.py
+
+# Streamlit Web BI Dashboard (Port 8501)
 streamlit run app/app.py
 ```
+
+### 5. REST API Endpoints Catalog
+- `GET /api/kpis`: Top-level executive metrics and market salary statistics.
+- `GET /api/skills/top`: Filtered skills demand matrix by role, seniority, and category.
+- `GET /api/skills/roi-combo`: High-value skill combination ROI salary uplift calculator.
+- `GET /api/career/gap-analysis`: Real-time career skill gap analyzer for target job roles.
+- `GET /api/jobs`: Paginated job posting explorer grid feed.
+- `GET /api/health`: System health monitor endpoint returning DB status, uptime, and cache hit metrics.
+- `GET /api/export`: CSV and JSON dataset exporter for skills, salaries, and market stats.
 
 ---
 

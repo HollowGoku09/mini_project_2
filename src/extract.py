@@ -1,9 +1,4 @@
-"""
-src/extract.py
-==============
-Chunked and full extraction module for Job Market Analytics raw CSV datasets.
-Ensures memory-efficient reading of large files (job_postings_fact and skills_job_dim).
-"""
+"""Raw data extraction helpers."""
 
 import logging
 from pathlib import Path

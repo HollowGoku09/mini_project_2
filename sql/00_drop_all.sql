@@ -1,8 +1,4 @@
--- =============================================================================
--- SQL File: 00_drop_all.sql
--- Purpose: Complete teardown script for the Job Market Analytics schema.
--- Drops all tables, bridge tables, materialised views, and types safely.
--- =============================================================================
+-- Teardown script for schema and materialized views
 
 DROP MATERIALIZED VIEW IF EXISTS mv_top_skills_overall CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_top_skills_by_role_family CASCADE;
